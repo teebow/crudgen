@@ -1,0 +1,24 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+export const Delete{{modelName}} = () => {
+  const [id, setId] = useState('');
+
+  const handleDelete = async () => {
+    await axios.delete(`/api/{{modelVar}}/${id}`);
+    alert('{{modelName}} deleted!');
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Delete {{modelName}}</h2>
+      <input
+        placeholder="ID"
+        className="input input-bordered mb-2"
+        value={id}
+        onChange={(e) => setId(e.target.value)}
+      />
+      <button className="btn btn-error" onClick={handleDelete}>Delete</button>
+    </div>
+  );
+};

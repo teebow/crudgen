@@ -1,0 +1,32 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+export const Create{{modelName}} = () => {
+  const [form, setForm] = useState<any>({});
+
+  const handleSubmit = async () => {
+    await axios.post('/api/{{modelVar}}', form);
+    setForm({});
+    alert('{{modelName}} created!');
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Create {{modelName}}</h2>
+      <div className="space-y-2">
+        {{#each fields}}
+        <div className="form-control">
+          <label className="label">{{name}}</label>
+          <input
+            type="{{type}}"
+            className="input input-bordered"
+            value={form.{{name}} || ''}
+            onChange={(e) => setForm({ ...form, {{name}}: e.target.value })}
+          />
+        </div>
+        {{/each}}
+        <button className="btn btn-primary" onClick={handleSubmit}>Create</button>
+      </div>
+    </div>
+  );
+};

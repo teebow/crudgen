@@ -1,0 +1,27 @@
+{
+  "name": "crudgen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "prisma": "^6.8.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@prisma/internals": "6.8.2",
+    "chalk": "^5.4.1",
+    "change-case": "^5.4.4",
+    "commander": "14.0.0",
+    "fs-extra": "^11.3.0",
+    "handlebars": "^4.7.8",
+    "inquirer": "12.6.3",
+    "ora": "^8.2.0"
+  }
+}
