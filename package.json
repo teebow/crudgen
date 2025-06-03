@@ -10,11 +10,11 @@
   "license": "ISC",
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "prisma": "^6.8.2",
+    "prisma": "^6.9.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@prisma/client": "^6.8.2",
+    "@prisma/client": "^6.9.0",
     "@prisma/internals": "6.8.2",
     "chalk": "^5.4.1",
     "change-case": "^5.4.4",

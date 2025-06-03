@@ -11,36 +11,75 @@ export async function generateBackend(
   outputDir: string
 ) {
   fs.mkdirsSync(outputDir);
+  process.chdir(outputDir);
   // 1. Crée le projet NestJS si non existant
   const spinner = ora("Création du projet Nest...").start();
   if (!fs.existsSync(path.join(outputDir, "package.json"))) {
-    execSync(
-      `bunx @nestjs/cli new ${path.basename(outputDir)}  --package-manager bun`,
-      {
-        stdio: "pipe",
-      }
-    );
+    execSync(`bunx @nestjs/cli new .  --package-manager bun`, {
+      stdio: "pipe",
+    });
   }
   spinner.succeed("Projet Nestjs créé");
+  // Copie le fichier tsconfig.json notamment pour la partie shared dto
+  await copyTsconfig(outputDir);
+  // 2. Installe les dépendances nécessaires
   spinner.start("installation des dépendances Nest");
-  process.chdir(outputDir);
+
   execSync("bun install", {
     stdio: "pipe",
   });
   spinner.succeed("Dépendances installées");
-  // 2. Ajoute Prisma et génère les fichiers nécessaires
+  // 3. Ajoute Prisma et génère les fichiers nécessaires
   spinner.start("installation de Prisma");
   execSync("bun add @prisma/client", { stdio: "pipe" });
-  execSync("bun add prisma -d", { stdio: "pipe" });
+  execSync("bun add @brakebein/prisma-generator-nestjs-dto prisma -d", {
+    stdio: "pipe",
+  });
   spinner.succeed("Prisma installé");
   spinner.start("Création du module Prisma");
   if (!fs.existsSync("prisma")) fs.mkdirSync("prisma");
 
   const newSchemaPath = path.join("prisma", "schema.prisma");
   //const schemaContent = generatePrismaSchema(models);
-  await fs.copyFile("../" + schemaPath, newSchemaPath);
+  const nestjsDtoGenerator = `
+  generator nestjsDto {
+    provider                        = "prisma-generator-nestjs-dto"
+    output                          = "../../shared/dto"
+    prismaClientImportPath          = ""
+    outputToNestJsResourceStructure = "true"
+    flatResourceStructure           = "false"
+    exportRelationModifierClasses   = "true"
+    reExport                        = "false"
+    generateFileTypes               = "all"
+    createDtoPrefix                 = "Create"
+    updateDtoPrefix                 = "Update"
+    dtoSuffix                       = "Dto"
+    entityPrefix                    = ""
+    entitySuffix                    = ""
+    classValidation                 = "false"
+    fileNamingStyle                 = "camel"
+    noDependencies                  = "true"
+    outputType                      = "class"
+    definiteAssignmentAssertion     = "false"
+    requiredResponseApiProperty     = "true"
+    prettier                        = "true"
+    wrapRelationsAsType             = "false"
+    showDefaultValues               = "false"
+  }
+  `;
 
-  //execSync('bunx prisma generate', { stdio: 'inherit' });
+  await fs.copyFile(schemaPath, newSchemaPath);
+  let schemaContent = await fs.readFile(newSchemaPath, "utf-8");
+  schemaContent = schemaContent.replace(
+    /generator client \{\s*provider\s*=\s*"prisma-client-js"\s*\}/,
+    `generator client {
+    provider = "prisma-client-js"
+  }
+   ${nestjsDtoGenerator}`
+  );
+  await fs.writeFile(newSchemaPath, schemaContent, "utf-8");
+
+  execSync("bunx prisma generate", { stdio: "inherit" });
   //execSync('bunx prisma migrate dev --name init --skip-seed', { stdio: 'inherit' });
 
   // 3. Installe PrismaService et module global
@@ -51,39 +90,17 @@ export async function generateBackend(
   spinner.start("Génération des modules et Dto");
   for (const model of models) {
     await generateEntityModule(model);
-    await generateDTOs(model);
+    //   await generateDTOs(model);
   }
   spinner.succeed("Module et dto");
 }
 
-function generatePrismaSchema(models: PrismaModel[]): string {
-  const header = `generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-`;
-
-  const body = models
-    .map((model) => {
-      const fields = model.fields
-        .map((f) => {
-          const optional = f.isOptional ? "?" : "";
-          const list = f.isList ? "[]" : "";
-          return `  ${f.name} ${f.type}${list}${optional}`;
-        })
-        .join("\n");
-
-      return `model ${model.name} {
-${fields}
-}`;
-    })
-    .join("\n\n");
-
-  return `${header}\n${body}`;
+async function copyTsconfig(outputDir: string) {
+  const tsconfigPath = path.join(
+    __dirname,
+    "../templates/backend/tsconfig.json"
+  );
+  await fs.copyFile(tsconfigPath, path.join(outputDir, "tsconfig.json"));
 }
 
 async function setupPrismaModule() {
