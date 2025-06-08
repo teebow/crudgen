@@ -1,8 +1,7 @@
-
-
 import { getDMMF } from "@prisma/internals";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { FormSchema, FormField } from "./frontend/generate-inputs";
 
 export type PrismaField = {
   name: string;
@@ -39,4 +38,36 @@ export async function extractModels(
   }));
 
   return models;
+}
+
+export function prismaModelToFormSchema(model: PrismaModel): FormSchema {
+  return {
+    title: model.name,
+    fields: model.fields
+      .filter((f) => f.name !== "id")
+      .map<FormField>((f) => ({
+        name: f.name,
+        label: f.name.charAt(0).toUpperCase() + f.name.slice(1),
+        type: mapPrismaTypeToFormType(f.type),
+        required: !f.isOptional,
+      })),
+    submitButtonText: "Submit",
+  };
+}
+
+function mapPrismaTypeToFormType(type: string): string {
+  switch (type.toLowerCase()) {
+    case "int":
+    case "float":
+    case "decimal":
+      return "number";
+    case "boolean":
+      return "checkbox";
+    case "date":
+    case "datetime":
+      return "date";
+    case "string":
+    default:
+      return "text";
+  }
 }

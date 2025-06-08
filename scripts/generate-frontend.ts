@@ -1,11 +1,12 @@
 import fs from "fs-extra";
 import path from "path";
-import { PrismaModel } from "./prisma-parser";
+import { PrismaModel, prismaModelToFormSchema } from "./prisma-parser";
 import { pascalCase, camelCase } from "change-case";
 import { execSync } from "node:child_process";
 import Handlebars from "handlebars";
 import { mapFieldType } from "./utils/map-field-type";
 import ora, { Ora, spinners } from "ora";
+import generateForm from "./frontend/generate-inputs";
 
 //todo tester
 export async function generateFrontend(
@@ -49,10 +50,11 @@ function createViteApp() {
 }
 
 function installDependencies() {
-  execSync(`bun add daisyui@latest -d`, {
-    stdio: "inherit",
-  });
+  // execSync(`bun add daisyui@latest -d`, {
+  //   stdio: "inherit",
+  // });
 
+  
   execSync(`bun add axios`, {
     stdio: "inherit",
   });
@@ -66,7 +68,8 @@ async function generateCRUDComponenst(
   const pagesPath = path.join(frontendPath, "src");
 
   await fs.ensureDir(pagesPath);
-  const templates = ["List", "Create", "Update", "Delete"];
+  //const templates = ["List", "Create", "Update", "Delete"];
+  const templates = ["Form"];
 
   const templateUi = path.join(templateDir, "ui");
 
@@ -80,18 +83,26 @@ async function generateCRUDComponenst(
       const templatePath = path.join(templateUi, `${template}.hbs`);
       const templateContent = await fs.readFile(templatePath, "utf-8");
       const compiled = Handlebars.compile(templateContent);
-
-      const output = compiled({
+      const { imports, formFields } = generateForm(
+        prismaModelToFormSchema(model)
+      );
+       const output = compiled({
         modelName,
         modelVar,
-        fields: model.fields
-          .filter((f: { name: string }) => f.name !== "id")
-          .map((f: { name: any; type: string; isOptional: any }) => ({
-            name: f.name,
-            type: mapFieldType(f.type),
-            required: !f.isOptional,
-          })),
+        imports,
+        formFields,
       });
+      // const output = compiled({
+      //   modelName,
+      //   modelVar,
+      //   fields: model.fields
+      //     .filter((f: { name: string }) => f.name !== "id")
+      //     .map((f: { name: any; type: string; isOptional: any }) => ({
+      //       name: f.name,
+      //       type: mapFieldType(f.type),
+      //       required: !f.isOptional,
+      //     })),
+      // });
 
       await fs.writeFile(path.join(modelDir, `${template}.tsx`), output);
     }
