@@ -26,30 +26,48 @@ export interface FormSchema {
   submitButtonText?: string;
 }
 
+function ReactHookFromControllerWrapper(
+  name: string,
+  validationRules: string,
+  content: string
+) {
+  return ` <Controller
+            key="${name}"
+            name="${name}"
+            control={control}
+            ${validationRules}
+            render={({ field: { onChange, value } }) => (
+              ${content}
+            )}
+          />`;
+}
+
 export function renderInputField(field: FormField) {
   return `<Input
-      id="${field.name}"
-      name="${field.name}"
-      label="${field.label}"
-      type="${field.type}"
-      placeholder="${field.placeholder || ""}"
-      isRequired={${field.required || false}}
-      value={formState["${field.name}"] || ""}
-      onValueChange={(value) => handleChange("${field.name}", value)}
-      className="mb-4"
+        id="${field.name}"
+        label="${field.label}"
+        type="${field.type}"
+        placeholder="${field.placeholder || ""}"
+        isRequired={${field.required || false}}
+        value={value || ""}
+        onValueChange={onChange}
+        isInvalid={!!errors.${field.name}}
+        errorMessage={errors.${field.name}?.message}
+        className="mb-4"
     />`;
 }
 
 export function renderTextareaField(field: FormField) {
   return `<Textarea
-      id="${field.name}"
-      name="${field.name}"
-      label="${field.label}"
-      placeholder="${field.placeholder || ""}"
-      isRequired={${field.required || false}}
-      value={formState["${field.name}"] || ""}
-      onValueChange={(value) => handleChange("${field.name}", value)}
-      className="mb-4"
+        id="${field.name}"
+        label="${field.label}"
+        placeholder="${field.placeholder || ""}"
+        isRequired={${field.required || false}}
+        value={value || ""}
+        onValueChange={onChange}
+        isInvalid={!!errors.${field.name}}
+        errorMessage={errors.${field.name}?.message}
+        className="mb-4"
     />`;
 }
 
@@ -62,13 +80,15 @@ export function renderSelectField(field: FormField) {
     .join("\n");
 
   return `<Select
-      id="${field.name}"
-      name="${field.name}"
-      label="${field.label}"
-      isRequired={${field.required || false}}
-      onChange={(e) => handleChange("${field.name}", e.target.value)}
-      className="mb-4"
-    >
+            id="${field.name}"
+            label="${field.label}"
+            isRequired={${field.required || false}}
+            selectedKeys={value ? [value] : []}
+            onChange={(e) => onChange(e.target.value)}
+            isInvalid={!!errors.${field.name}}
+            errorMessage={errors.${field.name}?.message}
+            className="mb-4"
+          >
     ${options}
     </Select>`;
 }
@@ -78,8 +98,9 @@ export function renderCheckboxField(field: FormField) {
       <Checkbox
         id="${field.name}"
         name="${field.name}"
-        isSelected={!!formState["${field.name}"]}
-        onValueChange={(checked) => handleChange("${field.name}", checked)}
+        isSelected={!!value}
+        onValueChange={onChange}
+        isInvalid={!!errors.${field.name}}
       >
         ${field.label}
       </Checkbox>
@@ -90,9 +111,16 @@ export function renderDateField(field: FormField) {
   return `<div className="mb-4">
       <DatePicker
         id="${field.name}"
-        name="${field.name}"
-        label="${field.label}"
-        isRequired={${field.required || false}}
+              label="${field.label}"
+              isRequired={${field.required || false}}
+              value={value ? parseDate(value) : undefined}
+              onChange={(date) => {
+                if (date) {
+                  onChange(date.toString());
+                }
+              }}
+              isInvalid={!!errors.${field.name}}
+              errorMessage={errors.${field.name}?.message}
       />
     </div>`;
 }
@@ -100,13 +128,14 @@ export function renderDateField(field: FormField) {
 export function renderDefaultField(field: FormField) {
   return `<Input
       id="${field.name}"
-      name="${field.name}"
-      label="${field.label}"
-      type="text"
-      isRequired={${field.required || false}}
-      value={formState["${field.name}"] || ""}
-      onValueChange={(value) => handleChange("${field.name}", value)}
-      className="mb-4"
+            label="${field.label}"
+            type="text"
+            isRequired={${field.required || false}}
+            value={value || ""}
+            onValueChange={onChange}
+            isInvalid={!!errors.${field.name}}
+            errorMessage={errors.${field.name}?.message}
+            className="mb-4"
     />`;
 }
 
@@ -127,7 +156,7 @@ export function renderForm(
           : ""
       }
       
-      <Form onSubmit={handleSubmit} className="space-y-2">
+      <Form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         ${formFields}
         
         <div className="flex justify-end mt-6">
@@ -135,80 +164,165 @@ export function renderForm(
             type="submit"
             color="primary"
             isLoading={isSubmitting}
-            startContent={!isSubmitting && <Icon icon="lucide:check" />}
+            startContent={!isSubmitting && <Check  />}
           >
             ${schema.submitButtonText || "Submit"}
           </Button>
         </div>
       </Form>
     </div>
-  );`;
+  );}`;
 }
 
-export default function generateForm(schema: FormSchema) {
-  // Create imports section
-  const importReact = () => `import React from "react";`;
-  const importForm = () => `import { Form } from "@heroui/form";`;
-  const importInputTextarea = () =>
-    `import { Input, Textarea } from "@heroui/input";`;
-  const importButton = () => `import { Button } from "@heroui/button";`;
-  const importSelect = () =>
-    `import { Select, SelectItem } from "@heroui/select";`;
-  const importCheckbox = () => `import { Checkbox } from "@heroui/checkbox";`;
-  const importDatePicker = () =>
-    `import { DatePicker } from "@heroui/date-picker";`;
-  const importIcon = () => `import { Icon } from "@iconify/react";`;
-  const imports = new Set<string>([
-    importReact(),
-    importForm(),
-    importButton(),
-  ]);
-
-  // Generate form fields based on schema
-  const formFields = schema.fields
-    .filter((f: { name: string }) => f.name !== "id")
-    .map((field) => {
-      // Extracted field renderers
-      switch (field.type) {
-        case "text":
-        case "email":
-        case "password":
-        case "tel":
-        case "url":
-        case "number":
-          imports.add(importInputTextarea());
-          return renderInputField(field);
-        case "textarea":
-          imports.add(importInputTextarea());
-          return renderTextareaField(field);
-        case "select":
-          imports.add(importSelect());
-          return renderSelectField(field);
-        case "checkbox":
-          imports.add(importCheckbox());
-          return renderCheckboxField(field);
-        case "date":
-          imports.add(importDatePicker());
-          return renderDateField(field);
-        default:
-          imports.add(importInputTextarea());
-          return renderDefaultField(field);
+export default function generate(schema: FormSchema) {
+  // Function to generate React code from schema
+  const generateFormCode = (schema: FormSchema) => {
+    // Create imports section
+    const importReact = () => `import { useState } from "react";`;
+    const importReactHookForm = () =>
+      `import { useForm, Controller } from "react-hook-form";`;
+    const importForm = () => `import { Form } from "@heroui/form";`;
+    const importInputTextarea = () =>
+      `import { Input, Textarea } from "@heroui/input";`;
+    const importButton = () => `import { Button } from "@heroui/button";`;
+    const importSelect = () =>
+      `import { Select, SelectItem } from "@heroui/select";`;
+    const importCheckbox = () => `import { Checkbox } from "@heroui/checkbox";`;
+    const importDatePicker = () =>
+      `import { DatePicker } from "@heroui/date-picker";`;
+    const importIcon = () => `import { Check } from "lucide-react";`;
+    const imports = new Set<string>([
+      importReact(),
+      importReactHookForm(),
+      importForm(),
+      importButton(),
+      importIcon(),
+    ]);
+    // Create form state and handlers
+    const stateAndHandlers = `
+        const { 
+      control, 
+      handleSubmit, 
+      formState: { errors, isSubmitting }
+    } = useForm({
+      defaultValues: {
+        ${schema.fields
+          .map((field) => {
+            if (field.defaultValue !== undefined) {
+              return `${field.name}: ${JSON.stringify(field.defaultValue)},`;
+            } else if (field.type === "checkbox") {
+              return `${field.name}: false,`;
+            } else if (
+              field.type === "select" &&
+              field.options &&
+              field.options.length > 0
+            ) {
+              return `${field.name}: "${field.options[0].value}",`;
+            } else {
+              return `${field.name}: "",`;
+            }
+          })
+          .join("\n      ")}
       }
-    })
-    .join("\n\n");
+    });
 
-  // Assemble the complete component
-  // Extracted function to assemble the complete component
-  // function assembleComponentCode(
-  //   imports: Set<string>,
-  //   schema: FormSchema,
-  //   stateAndHandlers: string,
-  //   formFields: string
-  // ) {
-  //   return `
-  //   ${Array.from(imports).join("\n")}
-  //   ${renderForm(schema, stateAndHandlers, formFields)}
-  //   `;
-  // }
-  return { imports, formFields };
+    const onSubmit = (data) => {
+      console.log("Form submitted:", data);
+      // Add your submission logic here
+    };`;
+
+    // Generate form fields based on schema
+    const formFields = schema.fields
+      .map((field) => {
+        const validationRules = [];
+        if (field.required)
+          validationRules.push(`required: "${field.label} is required"`);
+        if (field.type === "email")
+          validationRules.push(
+            `pattern: { value: /^\\S+@\\S+\\.\\S+$/, message: "Please enter a valid email address" }`
+          );
+        if (field.minLength)
+          validationRules.push(
+            `minLength: { value: ${field.minLength}, message: "Must be at least ${field.minLength} characters" }`
+          );
+        if (field.maxLength)
+          validationRules.push(
+            `maxLength: { value: ${field.maxLength}, message: "Must be at most ${field.maxLength} characters" }`
+          );
+
+        const rules =
+          validationRules.length > 0
+            ? `rules={{ ${validationRules.join(", ")} }}`
+            : "";
+
+        // Extracted field renderers
+        switch (field.type) {
+          case "text":
+          case "email":
+          case "password":
+          case "tel":
+          case "url":
+          case "number":
+            imports.add(importInputTextarea());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderInputField(field)
+            );
+          case "textarea":
+            imports.add(importInputTextarea());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderTextareaField(field)
+            );
+          case "select":
+            imports.add(importSelect());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderSelectField(field)
+            );
+          case "checkbox":
+            imports.add(importCheckbox());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderCheckboxField(field)
+            );
+          case "date":
+            imports.add(importDatePicker());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderDateField(field)
+            );
+          default:
+            imports.add(importInputTextarea());
+            return ReactHookFromControllerWrapper(
+              field.name,
+              rules,
+              renderDefaultField(field)
+            );
+        }
+      })
+      .join("\n\n");
+
+    // Assemble the complete component
+    // Extracted function to assemble the complete component
+    function assembleComponentCode(
+      imports: Set<string>,
+      schema: FormSchema,
+      stateAndHandlers: string,
+      formFields: string
+    ) {
+      return `
+      ${Array.from(imports).join("\n")}
+      ${renderForm(schema, stateAndHandlers, formFields)}
+      `;
+    }
+    return assembleComponentCode(imports, schema, stateAndHandlers, formFields);
+  };
+
+  return generateFormCode(schema);
 }

@@ -28,14 +28,25 @@ export async function generateFrontend(
     };
   };
 
-  withSpinner("Création avec create vite", createViteApp)();
-  withSpinner("Installation des dépendances", installDependencies)();
-  withSpinner("Génération des composants crud", generateCRUDComponenst)(
+  await withSpinner("Création avec create vite", createViteApp)();
+
+  await withSpinner("Installation des dépendances", installDependencies)();
+  await withSpinner("Génération des composants crud", generateCRUDComponenst)(
     templateDir,
     frontendPath,
     models
   );
-  withSpinner("Création du fichier api-client", copyApiFileTemplate)(
+
+  //update config files and copy templates
+  await withSpinner("Copie des fichiers de configuration", copyConfigTemplate)(
+    templateDir,
+    frontendPath
+  );
+  await withSpinner("Copie des fichiers App et index.css", copyAppAndIndexCssTemplate)(
+    templateDir,
+    frontendPath
+  );
+  await withSpinner("Création du fichier api-client", copyApiFileTemplate)(
     templateDir,
     frontendPath
   );
@@ -50,12 +61,21 @@ function createViteApp() {
 }
 
 function installDependencies() {
-  // execSync(`bun add daisyui@latest -d`, {
-  //   stdio: "inherit",
-  // });
+  const deps = [
+    "react-hook-form",
+    "axios",
+    "@heroui/react",
+    "lucide-react",
+    "framer-motion",
+    "@react-aria/i18n",
+    "@internationalized/date",
+  ];
+  execSync(`bun add ${deps.join(" ")}`, {
+    stdio: "inherit",
+  });
 
-  
-  execSync(`bun add axios`, {
+  const devDeps = ["tailwindcss@^3", "postcss@^8", "autoprefixer@^10"];
+  execSync(`bun add ${devDeps.join(" ")} -d`, {
     stdio: "inherit",
   });
 }
@@ -83,15 +103,8 @@ async function generateCRUDComponenst(
       const templatePath = path.join(templateUi, `${template}.hbs`);
       const templateContent = await fs.readFile(templatePath, "utf-8");
       const compiled = Handlebars.compile(templateContent);
-      const { imports, formFields } = generateForm(
-        prismaModelToFormSchema(model)
-      );
-       const output = compiled({
-        modelName,
-        modelVar,
-        imports,
-        formFields,
-      });
+      const form = generateForm(prismaModelToFormSchema(model));
+
       // const output = compiled({
       //   modelName,
       //   modelVar,
@@ -104,7 +117,7 @@ async function generateCRUDComponenst(
       //     })),
       // });
 
-      await fs.writeFile(path.join(modelDir, `${template}.tsx`), output);
+      await fs.writeFile(path.join(modelDir, `${template}.tsx`), form);
     }
   }
 }
@@ -119,3 +132,31 @@ function copyApiFileTemplate(templateDir: string, frontendPath: string) {
     path.join(outputCoreDirectory, "api-client.ts")
   );
 }
+
+function copyConfigTemplate(templateDir: string, frontendPath: string) {
+  const templateConfigPath = path.join(templateDir, "config");
+  fs.ensureDirSync(frontendPath);
+  const files = fs.readdirSync(templateConfigPath);
+  for (const file of files) {
+    fs.copyFileSync(
+      path.join(templateConfigPath, file),
+      path.join(frontendPath, file)
+    );
+  }
+}
+
+function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: string) {
+  const templateAppPath = path.join(templateDir, "app");
+  const outputAppDirectory = path.join(frontendPath, "src");
+
+  fs.ensureDirSync(outputAppDirectory);
+  fs.copyFileSync(
+    path.join(templateAppPath, "App.tsx"),
+    path.join(outputAppDirectory, "App.tsx")
+  );
+  fs.copyFileSync(
+    path.join(templateAppPath, "index.css"),
+    path.join(outputAppDirectory, "index.css")
+  );
+}
+
