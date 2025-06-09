@@ -29,7 +29,6 @@ export async function generateFrontend(
   };
 
   await withSpinner("Création avec create vite", createViteApp)();
-
   await withSpinner("Installation des dépendances", installDependencies)();
   await withSpinner("Génération des composants crud", generateCRUDComponenst)(
     templateDir,
@@ -122,41 +121,43 @@ async function generateCRUDComponenst(
   }
 }
 
-function copyApiFileTemplate(templateDir: string, frontendPath: string) {
+async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
   const templateApiPath = path.join(templateDir, "api");
   const outputCoreDirectory = path.join(frontendPath, "src/core/api/");
-
-  fs.ensureDirSync(outputCoreDirectory);
-  fs.copyFileSync(
+  await fs.ensureDir(outputCoreDirectory);
+  await fs.copy(
     path.join(templateApiPath, "api-client.ts"),
     path.join(outputCoreDirectory, "api-client.ts")
   );
 }
 
-function copyConfigTemplate(templateDir: string, frontendPath: string) {
+async function copyConfigTemplate(templateDir: string, frontendPath: string) {
   const templateConfigPath = path.join(templateDir, "config");
-  fs.ensureDirSync(frontendPath);
-  const files = fs.readdirSync(templateConfigPath);
-  for (const file of files) {
-    fs.copyFileSync(
-      path.join(templateConfigPath, file),
-      path.join(frontendPath, file)
-    );
-  }
+  await fs.ensureDir(frontendPath);
+  const files = await fs.readdir(templateConfigPath);
+  await Promise.all(
+    files.map(file =>
+      fs.copy(
+        path.join(templateConfigPath, file),
+        path.join(frontendPath, file)
+      )
+    )
+  );
 }
 
-function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: string) {
+async function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: string) {
   const templateAppPath = path.join(templateDir, "app");
   const outputAppDirectory = path.join(frontendPath, "src");
-
-  fs.ensureDirSync(outputAppDirectory);
-  fs.copyFileSync(
-    path.join(templateAppPath, "App.tsx"),
-    path.join(outputAppDirectory, "App.tsx")
-  );
-  fs.copyFileSync(
-    path.join(templateAppPath, "index.css"),
-    path.join(outputAppDirectory, "index.css")
-  );
+  await fs.ensureDir(outputAppDirectory);
+  await Promise.all([
+    fs.copy(
+      path.join(templateAppPath, "App.tsx"),
+      path.join(outputAppDirectory, "App.tsx")
+    ),
+    fs.copy(
+      path.join(templateAppPath, "index.css"),
+      path.join(outputAppDirectory, "index.css")
+    ),
+  ]);
 }
 
