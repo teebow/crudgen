@@ -1,13 +1,15 @@
 import { HeroUIProvider } from "@heroui/react";
 import "./App.css";
-import UserForm from "./User/Form";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// Create a client
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <>
-      <HeroUIProvider>
-        <UserForm />
-      </HeroUIProvider>
+      <QueryClientProvider client={queryClient}>
+        <HeroUIProvider>CONTENT</HeroUIProvider>
+      </QueryClientProvider>
     </>
   );
 }

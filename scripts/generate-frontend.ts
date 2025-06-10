@@ -42,10 +42,10 @@ export async function generateFrontend(
     templateDir,
     frontendPath
   );
-  await withSpinner("Copie des fichiers App et index.css", copyAppAndIndexCssTemplate)(
-    templateDir,
-    frontendPath
-  );
+  await withSpinner(
+    "Copie des fichiers App et index.css",
+    copyAppAndIndexCssTemplate
+  )(templateDir, frontendPath);
   await withSpinner("Création du fichier api-client", copyApiFileTemplate)(
     templateDir,
     frontendPath
@@ -68,6 +68,7 @@ function installDependencies() {
     "lucide-react",
     "framer-motion",
     "@react-aria/i18n",
+    "@tanstack/react-query",
     "@internationalized/date",
   ];
   execSync(`bun add ${deps.join(" ")}`, {
@@ -132,8 +133,10 @@ async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
   );
 }
 
-
-async function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: string) {
+async function copyAppAndIndexCssTemplate(
+  templateDir: string,
+  frontendPath: string
+) {
   const templateAppPath = path.join(templateDir, "app");
   const outputAppDirectory = path.join(frontendPath, "src");
   await fs.ensureDir(outputAppDirectory);
@@ -148,4 +151,3 @@ async function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: str
     ),
   ]);
 }
-

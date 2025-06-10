@@ -1,33 +1,31 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
+// src/api/clientApi.ts
+import axios from 'axios';
 
-export function createApiClient(baseUrl: string) {
-  return {
-    getAll: <T = any>() =>
-      axios.get<T[]>(baseUrl).then((res: { data: any }) => res.data),
-    getOne: <T = any>(id: number) =>
-      axios.get<T>(`${baseUrl}/${id}`).then((res: { data: any }) => res.data),
-    create: <T = any>(data: T) =>
-      axios.post<T>(baseUrl, data).then((res: { data: any }) => res.data),
-    update: <T = any>(id: number, data: Partial<T>) =>
-      axios
-        .put<T>(`${baseUrl}/${id}`, data)
-        .then((res: { data: any }) => res.data),
-    remove: (id: number) =>
-      axios.delete(`${baseUrl}/${id}`).then((res: { data: any }) => res.data),
-  };
-}
+const api = axios.create({
+  baseURL: 'http://localhost:3000/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-export function useApi<T = any>(baseUrl: string) {
-  const [data, setData] = useState<T[] | null>(null);
-  const [loading, setLoading] = useState(true);
+export const clientApi = {
+  get: async <T>(url: string, params?: object): Promise<T> => {
+    const response = await api.get<T>(url, { params });
+    return response.data;
+  },
 
-  useEffect(() => {
-    axios
-      .get<T[]>(baseUrl)
-      .then((res: { data: any }) => setData(res.data))
-      .finally(() => setLoading(false));
-  }, [baseUrl]);
+  post: async <T>(url: string, data: any): Promise<T> => {
+    const response = await api.post<T>(url, data);
+    return response.data;
+  },
 
-  return { data, loading };
-}
+  put: async <T>(url: string, data: any): Promise<T> => {
+    const response = await api.put<T>(url, data);
+    return response.data;
+  },
+
+  delete: async <T>(url: string): Promise<T> => {
+    const response = await api.delete<T>(url);
+    return response.data;
+  },
+};

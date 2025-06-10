@@ -175,6 +175,8 @@ export function renderForm(
 }
 
 export default function generate(schema: FormSchema) {
+  const entityName = schema.title.replace(/\s+/g, "");
+  const lowerEntityName = entityName.toLowerCase();
   // Function to generate React code from schema
   const generateFormCode = (schema: FormSchema) => {
     // Create imports section
@@ -205,7 +207,7 @@ export default function generate(schema: FormSchema) {
       handleSubmit, 
       formState: { errors, isSubmitting }
     } = useForm({
-      defaultValues: {
+      defaultValues: ${lowerEntityName} ?? {
         ${schema.fields
           .map((field) => {
             if (field.defaultValue !== undefined) {
@@ -222,7 +224,7 @@ export default function generate(schema: FormSchema) {
               return `${field.name}: "",`;
             }
           })
-          .join("\n      ")}
+          .join("\n")}
       }
     });
 
