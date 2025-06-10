@@ -4,12 +4,14 @@ import { ChildProcess, execSync } from "node:child_process";
 import { PrismaModel } from "./prisma-parser";
 import { pascalCase } from "change-case";
 import ora from "ora";
+import { copyConfigTemplate } from "./utils/copy-files";
 
 export async function generateBackend(
   schemaPath: string,
   models: PrismaModel[],
   outputDir: string
 ) {
+  const templateDir = path.join(__dirname, "..", "templates", "backend");
   fs.mkdirsSync(outputDir);
   process.chdir(outputDir);
   // 1. Crée le projet NestJS si non existant
@@ -24,6 +26,7 @@ export async function generateBackend(
   updateAppModuleFilesToAddConfigModule(outputDir);
   spinner.succeed();
   // Copie le fichier tsconfig.json notamment pour la partie shared dto
+  await copyConfigTemplate(templateDir, outputDir);
   await copyTsconfig(outputDir);
   // 2. Installe les dépendances nécessaires
   spinner.start("installation des dépendances Nest");

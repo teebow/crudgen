@@ -7,6 +7,7 @@ import Handlebars from "handlebars";
 import { mapFieldType } from "./utils/map-field-type";
 import ora, { Ora, spinners } from "ora";
 import generateForm from "./frontend/generate-inputs";
+import { copyConfigTemplate } from "./utils/copy-files";
 
 //todo tester
 export async function generateFrontend(
@@ -131,19 +132,6 @@ async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
   );
 }
 
-async function copyConfigTemplate(templateDir: string, frontendPath: string) {
-  const templateConfigPath = path.join(templateDir, "config");
-  await fs.ensureDir(frontendPath);
-  const files = await fs.readdir(templateConfigPath);
-  await Promise.all(
-    files.map(file =>
-      fs.copy(
-        path.join(templateConfigPath, file),
-        path.join(frontendPath, file)
-      )
-    )
-  );
-}
 
 async function copyAppAndIndexCssTemplate(templateDir: string, frontendPath: string) {
   const templateAppPath = path.join(templateDir, "app");
