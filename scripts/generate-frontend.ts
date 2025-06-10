@@ -4,8 +4,7 @@ import { PrismaModel, prismaModelToFormSchema } from "./prisma-parser";
 import { pascalCase, camelCase } from "change-case";
 import { execSync } from "node:child_process";
 import Handlebars from "handlebars";
-import { mapFieldType } from "./utils/map-field-type";
-import ora, { Ora, spinners } from "ora";
+import ora from "ora";
 import generateForm from "./frontend/generate-inputs";
 import { copyConfigTemplate } from "./utils/copy-files";
 
