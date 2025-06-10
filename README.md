@@ -32,7 +32,7 @@ To generate a frontend and backend application based on a Prisma schema:
 1. Place your Prisma schema file in the desired location (e.g., `./prisma/schema.prisma`).
 2. Run the following command:
    ```bash
-   bun run generate-app ./prisma/schema.prisma
+   bun run ./bin ./sample-data/schema.prisma
    ```
 
 ### Frontend Generation
