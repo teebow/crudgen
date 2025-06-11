@@ -1,5 +1,5 @@
 import { fs } from "memfs";
-import { updateFileContent } from "../scripts/utils/update-file-content";
+import { updateDtoImportInFiles } from "../scripts/utils/update-file-content";
 
 import { describe, it, expect, vi, beforeEach, afterEach, Mock } from "vitest";
 
@@ -30,12 +30,12 @@ describe("updateFileContent", () => {
   });
 
   it("throws if filePath or entityName is missing", () => {
-    expect(() => updateFileContent("", entityName)).toThrow();
-    expect(() => updateFileContent(mockFilePath, "")).toThrow();
+    expect(() => updateDtoImportInFiles("", entityName)).toThrow();
+    expect(() => updateDtoImportInFiles(mockFilePath, "")).toThrow();
   });
 
   it("replaces /dto/ imports with @dto/{entityName}/dto/", () => {
-    updateFileContent(mockFilePath, entityName);
+    updateDtoImportInFiles(mockFilePath, entityName);
 
     expect(fs.readFileSync).toHaveBeenCalledWith(mockFilePath, "utf-8");
     expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -51,7 +51,7 @@ describe("updateFileContent", () => {
   });
 
   it("does not replace unrelated import paths", () => {
-    updateFileContent(mockFilePath, entityName);
+    updateDtoImportInFiles(mockFilePath, entityName);
     expect(writtenContent).toContain(`from './notdto/whatever'`);
   });
 
@@ -59,7 +59,7 @@ describe("updateFileContent", () => {
     (fs.readFileSync as unknown as Mock).mockImplementation(
       () => `import x from './foo';`
     );
-    updateFileContent(mockFilePath, entityName);
+    updateDtoImportInFiles(mockFilePath, entityName);
     expect(writtenContent).toBe(`import x from './foo';`);
   });
 });

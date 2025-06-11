@@ -5,7 +5,10 @@ import { PrismaModel } from "./prisma-parser";
 import { pascalCase } from "change-case";
 import ora from "ora";
 import { copyConfigTemplate } from "./utils/copy-files";
-import { updateFileContent } from "./utils/update-file-content";
+import {
+  addPrismaServiceToModule,
+  updateDtoImportInFiles,
+} from "./utils/update-file-content";
 
 export async function generateBackend(
   schemaPath: string,
@@ -23,23 +26,45 @@ export async function generateBackend(
     });
   }
   spinner.succeed("Projet Nestjs créé");
+
+  // 2. Ajoute le module de configuration
   spinner.start("Ajout du module de configuration");
   updateAppModuleFilesToAddConfigModule(outputDir);
   spinner.succeed();
 
-  // 2. Installe les dépendances nécessaires
+  // 3. Installe les dépendances nécessaires
   spinner.start("installation des dépendances Nest");
   execSync("bun add @nestjs/config", { stdio: "pipe" });
   execSync("bun install ", { stdio: "pipe" });
   spinner.succeed("Dépendances installées");
-  // 3. Ajoute Prisma et génère les fichiers nécessaires
+
+  // 4. Ajoute Prisma et génère les fichiers nécessaires
   spinner.start("installation de Prisma");
   execSync("bun add @prisma/client", { stdio: "pipe" });
   execSync("bun add @brakebein/prisma-generator-nestjs-dto prisma -d", {
     stdio: "pipe",
   });
   spinner.succeed("Prisma installé");
+
+  // 5. Installe PrismaService et module global
   spinner.start("Création du module Prisma");
+  await updatePrismaSchemaAndGenerateDto(schemaPath);
+  //execSync('bunx prisma migrate dev --name init --skip-seed', { stdio: 'inherit' });
+  await setupPrismaModule();
+  spinner.succeed("Module Prisma");
+
+  // 6. Génère les ressources NestJS pour chaque entité
+  spinner.start("Génération des ressources NestJS");
+  await generateModulesAndControllers(models);
+  spinner.succeed("Ressources générées");
+
+  // 7. Copie les fichiers de configuration
+  spinner.start("Copie des fichiers de configuration");
+  await copyConfigTemplate(templateDir, outputDir);
+  spinner.succeed("Fichiers de configuration copiés");
+}
+
+async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
   if (!fs.existsSync("prisma")) fs.mkdirSync("prisma");
 
   const newSchemaPath = path.join("prisma", "schema.prisma");
@@ -82,40 +107,19 @@ export async function generateBackend(
   );
   await fs.writeFile(newSchemaPath, schemaContent, "utf-8");
 
-  execSync("bunx prisma generate", { stdio: "inherit" });
-  //execSync('bunx prisma migrate dev --name init --skip-seed', { stdio: 'inherit' });
+  execSync("bunx prisma generate", { stdio: "pipe" });
+}
 
-  // 3. Installe PrismaService et module global
-  await setupPrismaModule();
-  spinner.succeed("Module Prisma");
-  // 4. Génère un resource par modèle
-
-  spinner.start("Génération des modules et Dto");
+async function generateModulesAndControllers(models: PrismaModel[]) {
   const entityNameLowerCase = (model: PrismaModel) => model.name.toLowerCase();
   for (const model of models) {
     const entityName = entityNameLowerCase(model);
-    const filePath = path.join(
-      "src",
-      entityName,
-      `${entityName}.controller.ts`
-    );
+    const filePath = (type: string) =>
+      path.join("src", entityName, `${entityName}.${type}.ts`);
     await generateEntityModule(model);
-    //updateFileContent(filePath, entityName);
-    //   await generateDTOs(model);
+    updateDtoImportInFiles(filePath("controller"), entityName);
+    addPrismaServiceToModule(filePath("module"));
   }
-  spinner.succeed("Module et dto");
-  // 5. Copie les fichiers de configuration
-  spinner.start("Copie des fichiers de configuration");
-  await copyConfigTemplate(templateDir, outputDir);
-  spinner.succeed("Fichiers de configuration copiés");
-}
-
-async function copyTsconfig(outputDir: string) {
-  const tsconfigPath = path.join(
-    __dirname,
-    "../templates/backend/config/tsconfig.json"
-  );
-  await fs.copyFile(tsconfigPath, path.join(outputDir, "tsconfig.json"));
 }
 
 async function setupPrismaModule() {
@@ -241,21 +245,28 @@ function mapFieldType(type: string): string {
 function updateAppModuleFilesToAddConfigModule(outputDir: string) {
   const appModulePath = path.join(outputDir, "src", "app.module.ts");
   let appModuleContent = fs.readFileSync(appModulePath, "utf-8");
+  // Check if ConfigModule import is already present
+  if (!appModuleContent.includes("ConfigModule")) {
+    appModuleContent = appModuleContent.replace(
+      "import { Module } from '@nestjs/common';",
+      `import { Module } from '@nestjs/common';
+      import { ConfigModule } from '@nestjs/config';`
+    );
+  }
 
-  //add the import { ConfigModule } from '@nestjs/config'; at the top of the file
-  appModuleContent = appModuleContent.replace(
-    "import { Module } from '@nestjs/common';",
-    `import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';`
-  );
-  //add ConfigModule.forRoot() to the imports array
-  appModuleContent = appModuleContent.replace(
-    "imports: [",
-    `imports: [
+  // Check if ConfigModule.forRoot() is already in the imports array
+  const importsRegex = /imports\s*:\s*\[([^\]]*)\]/;
+  const match = appModuleContent.match(importsRegex);
+  if (match && !match[1].includes("ConfigModule.forRoot")) {
+    appModuleContent = appModuleContent.replace(
+      "imports: [",
+      `imports: [
       ConfigModule.forRoot({
         isGlobal: true, // Make the config global
       }),`
-  );
+    );
+  }
+
   //write the updated content back to the file
   fs.writeFileSync(appModulePath, appModuleContent, "utf-8");
 }
