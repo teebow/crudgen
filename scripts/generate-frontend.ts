@@ -96,29 +96,10 @@ async function generateCRUDComponenst(
   for (const model of models) {
     const modelName = pascalCase(model.name);
     const modelVar = camelCase(model.name);
-    const modelDir = path.join(pagesPath, modelName);
+    const modelDir = path.join(pagesPath, modelVar);
     await fs.ensureDir(modelDir);
-
-    for (const template of templates) {
-      const templatePath = path.join(templateUi, `${template}.hbs`);
-      const templateContent = await fs.readFile(templatePath, "utf-8");
-      const compiled = Handlebars.compile(templateContent);
-      const form = generateForm(prismaModelToFormSchema(model));
-
-      // const output = compiled({
-      //   modelName,
-      //   modelVar,
-      //   fields: model.fields
-      //     .filter((f: { name: string }) => f.name !== "id")
-      //     .map((f: { name: any; type: string; isOptional: any }) => ({
-      //       name: f.name,
-      //       type: mapFieldType(f.type),
-      //       required: !f.isOptional,
-      //     })),
-      // });
-
-      await fs.writeFile(path.join(modelDir, `${template}.tsx`), form);
-    }
+    const form = generateForm(prismaModelToFormSchema(model));
+    await fs.writeFile(path.join(modelDir, `${modelName}Form.tsx`), form);
   }
 }
 

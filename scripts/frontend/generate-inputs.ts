@@ -1,3 +1,5 @@
+import { generateEntityForm } from "./generate-form";
+
 // Define types for the form schema
 export interface FormField {
   name: string;
@@ -320,7 +322,7 @@ export default function generate(schema: FormSchema) {
     ) {
       return `
       ${Array.from(imports).join("\n")}
-      ${renderForm(schema, stateAndHandlers, formFields)}
+      ${generateEntityForm(schema.title, formFields)}
       `;
     }
     return assembleComponentCode(imports, schema, stateAndHandlers, formFields);

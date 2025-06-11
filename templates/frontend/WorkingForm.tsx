@@ -6,15 +6,15 @@ import { useApi } from "../core/api/api-client";
 
 type UserFormProps = {
   onCancel?: () => void;
-  onSave?: (user: UserDto) => void;
+  onSubmit?: (user: UserDto) => void;
   showCancel?: boolean;
   user: UserDto | null;
 };
 
-export default function UserForm2({
+export default function UserForm({
   user,
   onCancel,
-  onSave,
+  onSubmit,
   showCancel,
 }: UserFormProps) {
   const api = useApi("http://localhost:3000/user");
@@ -29,15 +29,7 @@ export default function UserForm2({
     },
   });
 
-  // Handle form submission
-  const onSubmit = async (data: UserDto) => {
-    const res = await api.create<UserDto>(data);
-    console.log("User created:", res);
-
-    if (onSave) {
-      onSave(data);
-    }
-  };
+  
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
@@ -93,7 +85,7 @@ export default function UserForm2({
             isLoading={isSubmitting}
             startContent={!isSubmitting && <Check />}
           >
-            Save
+            {user ? "Update" : "Create"}
           </Button>
         </div>
       </div>
