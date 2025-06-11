@@ -5,6 +5,7 @@ import { PrismaModel } from "./prisma-parser";
 import { pascalCase } from "change-case";
 import ora from "ora";
 import { copyConfigTemplate } from "./utils/copy-files";
+import { updateFileContent } from "./utils/update-file-content";
 
 export async function generateBackend(
   schemaPath: string,
@@ -25,9 +26,7 @@ export async function generateBackend(
   spinner.start("Ajout du module de configuration");
   updateAppModuleFilesToAddConfigModule(outputDir);
   spinner.succeed();
-  // Copie le fichier tsconfig.json notamment pour la partie shared dto
-  await copyConfigTemplate(templateDir, outputDir);
-  await copyTsconfig(outputDir);
+
   // 2. Installe les dépendances nécessaires
   spinner.start("installation des dépendances Nest");
   execSync("bun add @nestjs/config", { stdio: "pipe" });
@@ -92,11 +91,23 @@ export async function generateBackend(
   // 4. Génère un resource par modèle
 
   spinner.start("Génération des modules et Dto");
+  const entityNameLowerCase = (model: PrismaModel) => model.name.toLowerCase();
   for (const model of models) {
+    const entityName = entityNameLowerCase(model);
+    const filePath = path.join(
+      "src",
+      entityName,
+      `${entityName}.controller.ts`
+    );
     await generateEntityModule(model);
+    //updateFileContent(filePath, entityName);
     //   await generateDTOs(model);
   }
   spinner.succeed("Module et dto");
+  // 5. Copie les fichiers de configuration
+  spinner.start("Copie des fichiers de configuration");
+  await copyConfigTemplate(templateDir, outputDir);
+  spinner.succeed("Fichiers de configuration copiés");
 }
 
 async function copyTsconfig(outputDir: string) {
@@ -247,5 +258,4 @@ import { ConfigModule } from '@nestjs/config';`
   );
   //write the updated content back to the file
   fs.writeFileSync(appModulePath, appModuleContent, "utf-8");
-  console.log("App module updated to include ConfigModule.");
 }
