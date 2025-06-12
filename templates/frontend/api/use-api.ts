@@ -1,6 +1,6 @@
 // src/hooks/useUsers.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { clientApi } from "./clientApi";
+import { clientApi } from "./api-client";
 
 export const useApi = <T>(entity: string) => {
   const queryClient = useQueryClient();

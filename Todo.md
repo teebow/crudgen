@@ -4,9 +4,9 @@ TODO [x] add prisma service to all module
 TODO [ ] utiliser les dto coté front
 TODO [ ] checker pour le connect et les relations dans un formulaire
 TODO [ ] Faire des vrais tests :)
-TODO [ ] utiliser lucide Icon
+TODO [ ] utiliser lucide Icon -> remplacer par @iconify/react
 TODO [ ] Faire un truc propre pour le nommage des dossiers et fichier
-TODO [X] utiliser  HeroUi
+TODO [X] utiliser HeroUi
 TODO [x] utiliser reactquery ?
 TODO [ ] Dockerize
 TODO [x] BDD
@@ -18,7 +18,5 @@ TODO [ ] Externaliser les labels
 TODO [ ] Check copy .env
 
 Voir autres best practices
-
-
 
 FAIRE MARCHER HERO UI BETA 4 AVEC TAILWIND 4

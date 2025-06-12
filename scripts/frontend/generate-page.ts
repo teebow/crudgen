@@ -1,0 +1,57 @@
+import { pascalCase } from "change-case";
+
+export function generatePageCode(entityName: string, formFields: string): string {
+  const entityCapitalized = pascalCase(entityName);
+  const entityLower = entityName.toLowerCase();
+
+  // This function generates a React component for a page based on the entity name.
+  const code = `import { useState } from "react";
+  import ${entityCapitalized}Form from "./${entityCapitalized}Form";
+  import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
+  import { useApi } from "../core/api/use-api";
+
+  export default function ${entityCapitalized}Page() {
+    const { useCreate, useUpdate } = useApi<${entityCapitalized}Dto>("${entityLower}");
+    const { mutateAsync: create } = useCreate();
+    const { mutateAsync: update } = useUpdate();
+    
+    const [existing${entityCapitalized}, setExisting${entityCapitalized}] = useState<${entityCapitalized}Dto | null>(null);
+  
+    const [message, setMessage] = useState("");
+
+    const create${entityCapitalized} = async (userData: Omit<${entityCapitalized}Dto, "id">) => {
+      await create(userData);
+      setMessage(\`${entityCapitalized} created\`);
+    };
+
+    const update${entityCapitalized} = async (userData: ${entityCapitalized}Dto) => {
+      //await update(userData.id.toString(), userData);
+      setMessage(\`${entityCapitalized} updated\`);
+    };
+
+    return (
+      <div className="max-w-xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-4">
+          {existing${entityCapitalized} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}
+        </h1>
+
+        <${entityCapitalized}Form
+          ${entityLower}={existing${entityCapitalized}}
+          onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
+            if (existing${entityCapitalized}?.id) {
+              update${entityCapitalized}({ ...${entityLower}, id: existing${entityCapitalized}.id });
+            } else {
+              create${entityCapitalized}(${entityLower});
+            }
+          }}
+        />
+  
+        {message && (
+          <div className="mt-4 text-green-600 font-medium">{message}</div>
+        )}
+      </div>
+    );
+  }
+    `;
+    return code;
+}

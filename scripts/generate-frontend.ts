@@ -7,6 +7,9 @@ import Handlebars from "handlebars";
 import ora from "ora";
 import generateForm from "./frontend/generate-inputs";
 import { copyConfigTemplate } from "./utils/copy-files";
+import { generatePageCode } from "./frontend/generate-page";
+import { generateMainApp } from "./frontend/generate-main-app";
+import { generateSidebar } from "./frontend/generate-sidebar";
 
 //todo tester
 export async function generateFrontend(
@@ -50,6 +53,17 @@ export async function generateFrontend(
     frontendPath
   );
 
+  const sidebar = generateSidebar(models);
+  const createComponentsDir = path.join(frontendPath, "src/components");
+  await fs.ensureDir(createComponentsDir);
+  // Write the sidebar component
+  await fs.writeFile(
+    path.join(createComponentsDir, "CollapsibleSidebar.tsx"),
+    sidebar
+  );
+  const mainApp = generateMainApp(models);
+  await fs.writeFile(path.join(frontendPath, "src/App.tsx"), mainApp);
+
   console.log("✅ Composants CRUD frontend générés avec succès.");
 }
 
@@ -62,8 +76,10 @@ function createViteApp() {
 function installDependencies() {
   const deps = [
     "react-hook-form",
+    "react-router-dom",
     "axios",
     "@heroui/react",
+    "@iconify/react",
     "lucide-react",
     "framer-motion",
     "@react-aria/i18n",
@@ -100,6 +116,8 @@ async function generateCRUDComponenst(
     await fs.ensureDir(modelDir);
     const form = generateForm(prismaModelToFormSchema(model));
     await fs.writeFile(path.join(modelDir, `${modelName}Form.tsx`), form);
+    const page = generatePageCode(model.name, form);
+    await fs.writeFile(path.join(modelDir, `${modelName}Page.tsx`), page);
   }
 }
 
@@ -107,27 +125,15 @@ async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
   const templateApiPath = path.join(templateDir, "api");
   const outputCoreDirectory = path.join(frontendPath, "src/core/api/");
   await fs.ensureDir(outputCoreDirectory);
-  await fs.copy(
-    path.join(templateApiPath, "api-client.ts"),
-    path.join(outputCoreDirectory, "api-client.ts")
-  );
+  await fs.copy(templateApiPath, outputCoreDirectory);
 }
 
 async function copyAppAndIndexCssTemplate(
   templateDir: string,
   frontendPath: string
 ) {
-  const templateAppPath = path.join(templateDir, "app");
-  const outputAppDirectory = path.join(frontendPath, "src");
-  await fs.ensureDir(outputAppDirectory);
-  await Promise.all([
-    fs.copy(
-      path.join(templateAppPath, "App.tsx"),
-      path.join(outputAppDirectory, "App.tsx")
-    ),
-    fs.copy(
-      path.join(templateAppPath, "index.css"),
-      path.join(outputAppDirectory, "index.css")
-    ),
-  ]);
+  const templatePath = path.join(templateDir, "app");
+  const outputDir = path.join(frontendPath, "src");
+  await fs.ensureDir(outputDir);
+  await fs.copy(templatePath, outputDir);
 }
