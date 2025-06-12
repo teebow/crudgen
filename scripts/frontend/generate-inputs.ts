@@ -194,7 +194,7 @@ export default function generate(schema: FormSchema) {
     const importCheckbox = () => `import { Checkbox } from "@heroui/checkbox";`;
     const importDatePicker = () =>
       `import { DatePicker } from "@heroui/date-picker";`;
-    const importIcon = () => `import { Check } from "lucide-react";`;
+    const importIcon = () => `import { Icon } from "@iconify/react";`;
     const imports = new Set<string>([
       importReact(),
       importReactHookForm(),

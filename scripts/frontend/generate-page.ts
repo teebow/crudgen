@@ -10,13 +10,15 @@ export function generatePageCode(entityName: string, formFields: string): string
   import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
   import { useApi } from "../core/api/use-api";
 
-  export default function ${entityCapitalized}Page() {
+  type ${entityCapitalized}PageProps = {
+    ${entityLower}: ${entityCapitalized}Dto | null;
+  };
+
+  export default function ${entityCapitalized}Page({${entityLower}}: ${entityCapitalized}PageProps) {
     const { useCreate, useUpdate } = useApi<${entityCapitalized}Dto>("${entityLower}");
     const { mutateAsync: create } = useCreate();
     const { mutateAsync: update } = useUpdate();
     
-    const [existing${entityCapitalized}, setExisting${entityCapitalized}] = useState<${entityCapitalized}Dto | null>(null);
-  
     const [message, setMessage] = useState("");
 
     const create${entityCapitalized} = async (userData: Omit<${entityCapitalized}Dto, "id">) => {
@@ -25,7 +27,7 @@ export function generatePageCode(entityName: string, formFields: string): string
     };
 
     const update${entityCapitalized} = async (userData: ${entityCapitalized}Dto) => {
-      //await update(userData.id.toString(), userData);
+      await update(userData);
       setMessage(\`${entityCapitalized} updated\`);
     };
 
@@ -36,10 +38,10 @@ export function generatePageCode(entityName: string, formFields: string): string
         </h1>
 
         <${entityCapitalized}Form
-          ${entityLower}={existing${entityCapitalized}}
+          ${entityLower}={${entityLower}}
           onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
-            if (existing${entityCapitalized}?.id) {
-              update${entityCapitalized}({ ...${entityLower}, id: existing${entityCapitalized}.id });
+            if (${entityCapitalized}?.id) {
+              update${entityCapitalized}({ ...${entityLower}, id: ${entityCapitalized}.id });
             } else {
               create${entityCapitalized}(${entityLower});
             }

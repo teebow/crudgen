@@ -1,6 +1,9 @@
 import { pascalCase } from "change-case";
 
-export function generateEntityForm(entityName: string, formFields:string): string {
+export function generateEntityForm(
+  entityName: string,
+  formFields: string
+): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
   // This function generates a React component for a form based on the entity name.
@@ -38,7 +41,7 @@ export default function ${entityCapitalized}Form({
             className="w-full justify-center items-center space-y-4"
             id="${entityLower}-form"
         >
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col  w-full">
                ${formFields}
 
                 <div className="flex gap-4">
@@ -53,7 +56,7 @@ export default function ${entityCapitalized}Form({
                         form="${entityLower}-form"
                         className="w-full"
                         isLoading={isSubmitting}
-                        startContent={!isSubmitting && <Check />}
+                        startContent={!isSubmitting && <Icon icon="lucide:check" />}
                     >
                         {${entityLower} ? "Update" : "Create"}
                     </Button>

@@ -79,8 +79,6 @@ function installDependencies() {
     "react-router-dom",
     "axios",
     "@heroui/react",
-    "@iconify/react",
-    "lucide-react",
     "framer-motion",
     "@react-aria/i18n",
     "@tanstack/react-query",
@@ -90,7 +88,12 @@ function installDependencies() {
     stdio: "inherit",
   });
 
-  const devDeps = ["tailwindcss@^3", "postcss@^8", "autoprefixer@^10"];
+  const devDeps = [
+    "tailwindcss@^3",
+    "postcss@^8",
+    "autoprefixer@^10",
+    "@iconify/react",
+  ];
   execSync(`bun add ${devDeps.join(" ")} -d`, {
     stdio: "inherit",
   });
