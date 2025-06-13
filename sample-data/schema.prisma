@@ -7,11 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Standard timestamp fields - copy to each model:
+// createdAt DateTime  @default(now())
+// updatedAt DateTime  @updatedAt  
+// deletedAt DateTime?
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String?  @unique
   posts     Post[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model Post {
@@ -20,5 +29,9 @@ model Post {
   content   String?
   author    User?   @relation(fields: [authorId], references: [id])
   authorId  Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 

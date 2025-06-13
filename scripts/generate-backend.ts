@@ -9,6 +9,8 @@ import {
   addPrismaServiceToModule,
   updateDtoImportInFiles,
 } from "./utils/update-file-content";
+import { generatePrismaService } from "./backend/generate-prisma-service";
+import { checkModelsHaveTimestampsColumns } from "./backend/validate-prisma-schema";
 
 export async function generateBackend(
   schemaPath: string,
@@ -98,6 +100,12 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
 
   await fs.copyFile(schemaPath, newSchemaPath);
   let schemaContent = await fs.readFile(newSchemaPath, "utf-8");
+  try {
+    checkModelsHaveTimestampsColumns(schemaContent);
+  } catch (error) {
+    console.error("Error validating Prisma schema:", error);
+    throw error;
+  }
   schemaContent = schemaContent.replace(
     /generator client \{\s*provider\s*=\s*"prisma-client-js"\s*\}/,
     `generator client {
@@ -129,25 +137,10 @@ async function setupPrismaModule() {
     stdio: "pipe",
   });
 
-  const serviceContent = `import { Injectable, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-
-@Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
-  async onModuleInit() {
-    await this.$connect();
-  }
-}
-`;
-
   await fs.writeFile(
     path.join(prismaServicePath, "prisma.service.ts"),
-    serviceContent
+    generatePrismaService()
   );
-  // await fs.writeFile(
-  //   path.join(prismaServicePath, "prisma.module.ts"),
-  //   moduleContent
-  // );
 }
 
 async function generateEntityModule(model: PrismaModel) {

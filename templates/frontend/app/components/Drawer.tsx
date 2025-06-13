@@ -9,14 +9,14 @@ import {
 import { Icon } from "@iconify/react";
 import UserPage from "../user/UserPage";
 import type { UserDto } from "@dto/user/dto/user.dto";
+import type { PropsWithChildren } from "react";
 
-type DrawerProps<T> = {
-    item: T;
+type DrawerProps = {
     isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-};
+} & PropsWithChildren;
 
-export default function CustomDrawer<T>({item, isOpen, onOpenChange}: DrawerProps<T>) {
+export default function CustomDrawer({ isOpen, onOpenChange, children }: DrawerProps) {
   return (
     <>
       {/* <Button
@@ -113,7 +113,7 @@ export default function CustomDrawer<T>({item, isOpen, onOpenChange}: DrawerProp
                 </div>
               </DrawerHeader>
               <DrawerBody className="pt-16">
-                <UserPage  user={item as UserDto}/>
+                {children}
               </DrawerBody>
             </>
           )}

@@ -4,7 +4,7 @@ TODO [x] add prisma service to all module
 TODO [x] utiliser les dto coté front
 TODO [ ] checker pour le connect et les relations dans un formulaire
 TODO [ ] Faire des vrais tests :)
-TODO [ ] utiliser lucide Icon -> remplacer par @iconify/react
+TODO [x] utiliser lucide Icon -> remplacer par @iconify/react
 TODO [ ] Faire un truc propre pour le nommage des dossiers et fichier
 TODO [X] utiliser HeroUi
 TODO [x] utiliser reactquery ?
@@ -16,7 +16,7 @@ TODO [ ] faire une api propre
 TODO [ ] Frontal avec reverse proxy pour l'api
 TODO [ ] Externaliser les labels
 TODO [x] Check copy .env
-TODO [ ] add auto createdAt, deletedAt and updatedAt column
+TODO [x] add auto createdAt, deletedAt and updatedAt column
 
 Voir autres best practices
 
