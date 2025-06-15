@@ -24,7 +24,12 @@ TODO [ ] manage date colmun (deletedAt...) display
 [ ] voir pour le state management si besoin
 [ ] voir en Page List etc.. comment faire ça propre
 [ ] gestion des relation back et front
+[ ] https://github.com/vegardit/prisma-generator-nestjs-dto?tab=readme-ov-file#usage
+[ ] voir exemple sur le site prisma
+[ ] migration init prisma à faire ?
+
 
 Voir autres best practices
+https://github.com/notiz-dev/nestjs-prisma-starter/blob/main/src/posts/posts.resolver.ts
 
 FAIRE MARCHER HERO UI BETA 4 AVEC TAILWIND 4

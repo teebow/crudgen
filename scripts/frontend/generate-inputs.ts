@@ -1,3 +1,4 @@
+import { ignoreDefaultDateFields } from "../utils/ignore-field";
 import { generateEntityForm } from "./generate-form";
 
 // Define types for the form schema
@@ -234,11 +235,9 @@ export default function generate(schema: FormSchema) {
       console.log("Form submitted:", data);
       // Add your submission logic here
     };`;
-    const defaultDateColumn = ["createdAt", "deletedAt", "updatedAt"];
 
     // Generate form fields based on schema
-    const formFields = schema.fields
-      .filter((field) => !defaultDateColumn.includes(field.name))
+    const formFields = ignoreDefaultDateFields(schema.fields)
       .map((field) => {
         const validationRules = [];
         if (field.required)

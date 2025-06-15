@@ -1,5 +1,6 @@
 import { pascalCase } from "change-case";
 import { FormSchema } from "./generate-inputs";
+import { ignoreDefaultDateFields } from "../utils/ignore-field";
 
 export function generateEntityForm(
   entityName: string,
@@ -10,7 +11,7 @@ export function generateEntityForm(
   const entityLower = entityName.toLowerCase();
   const additionnalImports: string[] = [];
   // Generate default values for the form based on the schema fields
-  const defaultValues = formSchema.fields.filter()
+  const defaultValues = ignoreDefaultDateFields(formSchema.fields)
     .map((field) => {
       if (field.name === "id") return null; // Skip ID field
       if (field.type === "date")

@@ -7,7 +7,7 @@ import { Input, Textarea } from "@heroui/input";
 import { DatePicker } from "@heroui/date-picker";
 
 import type { UserDto } from "@dto/user/dto/user.dto";
-import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { useApi } from "../core/api/use-api";
 import type { PostDto } from "@dto/post/dto/post.dto";
 
