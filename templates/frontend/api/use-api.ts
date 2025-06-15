@@ -23,7 +23,7 @@ export const useApi = <T>(entity: string) => {
 
     useUpdate: () => {
       return useMutation({
-        mutationFn: ({ id, ...data }: Partial<T> & { id: string }) =>
+        mutationFn: ({ id, ...data }: Partial<T> & { id: number }) =>
           clientApi.put<T>(`/${entity}/${id}`, data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: [entity] }),
       });
@@ -31,7 +31,7 @@ export const useApi = <T>(entity: string) => {
 
     useDelete: () => {
       return useMutation({
-        mutationFn: (id: string) => clientApi.delete(`/${entity}/${id}`),
+        mutationFn: (id: number) => clientApi.delete(`/${entity}/${id}`),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: [entity] }),
       });
     },

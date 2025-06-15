@@ -1,13 +1,42 @@
 import { pascalCase } from "change-case";
+import { FormSchema } from "./generate-inputs";
 
 export function generateEntityForm(
   entityName: string,
-  formFields: string
+  formFields: string,
+  formSchema: FormSchema
 ): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
+  const additionnalImports: string[] = [];
+  // Generate default values for the form based on the schema fields
+  const defaultValues = formSchema.fields.filter()
+    .map((field) => {
+      if (field.name === "id") return null; // Skip ID field
+      if (field.type === "date")
+        additionnalImports.push(
+          `import { parseDate } from "@internationalized/date";`
+        );
+      if (field.defaultValue !== undefined) {
+        return `${field.name}: ${JSON.stringify(field.defaultValue)},`;
+      } else if (field.type === "checkbox") {
+        return `${field.name}: false,`;
+      } else if (
+        field.type === "select" &&
+        field.options &&
+        field.options.length > 0
+      ) {
+        return `${field.name}: "${field.options[0].value}",`;
+      } else {
+        return `${field.name}: "",`;
+      }
+    })
+    .filter(Boolean)
+    .join("\n");
+
   // This function generates a React component for a form based on the entity name.
   const code = `
+  ${additionnalImports.join("\n")}
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
 
 type ${entityCapitalized}FormProps = {
@@ -29,8 +58,7 @@ export default function ${entityCapitalized}Form({
         formState: { errors, isSubmitting },
     } = useForm<${entityCapitalized}Dto>({
         defaultValues: ${entityLower} ?? {
-            name: "",
-            email: "",
+        ${defaultValues}
         },
     });
 

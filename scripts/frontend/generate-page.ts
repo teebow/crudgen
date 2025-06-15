@@ -1,6 +1,9 @@
 import { pascalCase } from "change-case";
 
-export function generatePageCode(entityName: string, formFields: string): string {
+export function generatePageCode(
+  entityName: string,
+  formFields: string
+): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
 
@@ -21,27 +24,27 @@ export function generatePageCode(entityName: string, formFields: string): string
     
     const [message, setMessage] = useState("");
 
-    const create${entityCapitalized} = async (userData: Omit<${entityCapitalized}Dto, "id">) => {
-      await create(userData);
+    const create${entityCapitalized} = async (${entityLower}Data: Omit<${entityCapitalized}Dto, "id">) => {
+      await create(${entityLower}Data);
       setMessage(\`${entityCapitalized} created\`);
     };
 
-    const update${entityCapitalized} = async (userData: ${entityCapitalized}Dto) => {
-      await update(userData);
+    const update${entityCapitalized} = async (${entityLower}Data: ${entityCapitalized}Dto) => {
+      await update(${entityLower}Data);
       setMessage(\`${entityCapitalized} updated\`);
     };
 
     return (
-      <div className="max-w-xl mx-auto p-6">
+      <div className="w-full mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">
-          {existing${entityCapitalized} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}
+          {${entityLower} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}
         </h1>
 
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
           onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
-            if (${entityCapitalized}?.id) {
-              update${entityCapitalized}({ ...${entityLower}, id: ${entityCapitalized}.id });
+            if (${entityLower}?.id) {
+              update${entityCapitalized}({ ...${entityLower}, id: ${entityLower}.id });
             } else {
               create${entityCapitalized}(${entityLower});
             }
@@ -55,5 +58,5 @@ export function generatePageCode(entityName: string, formFields: string): string
     );
   }
     `;
-    return code;
+  return code;
 }

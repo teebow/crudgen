@@ -10,6 +10,7 @@ import { copyConfigTemplate } from "./utils/copy-files";
 import { generatePageCode } from "./frontend/generate-page";
 import { generateMainApp } from "./frontend/generate-main-app";
 import { generateSidebar } from "./frontend/generate-sidebar";
+import { generateList } from "./frontend/generate-list";
 
 //todo tester
 export async function generateFrontend(
@@ -116,11 +117,14 @@ async function generateCRUDComponenst(
     const modelName = pascalCase(model.name);
     const modelVar = camelCase(model.name);
     const modelDir = path.join(pagesPath, modelVar);
+    const formSchema = prismaModelToFormSchema(model);
     await fs.ensureDir(modelDir);
-    const form = generateForm(prismaModelToFormSchema(model));
+    const form = generateForm(formSchema);
     await fs.writeFile(path.join(modelDir, `${modelName}Form.tsx`), form);
     const page = generatePageCode(model.name, form);
     await fs.writeFile(path.join(modelDir, `${modelName}Page.tsx`), page);
+    const list = generateList(model.name, formSchema);
+    await fs.writeFile(path.join(modelDir, `${modelName}List.tsx`), list);
   }
 }
 

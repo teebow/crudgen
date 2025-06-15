@@ -115,7 +115,7 @@ export function renderDateField(field: FormField) {
         id="${field.name}"
               label="${field.label}"
               isRequired={${field.required || false}}
-              value={value ? parseDate(value) : undefined}
+              value={value ? parseDate(value.toString()) : undefined}
               onChange={(date) => {
                 if (date) {
                   onChange(date.toString());
@@ -234,9 +234,11 @@ export default function generate(schema: FormSchema) {
       console.log("Form submitted:", data);
       // Add your submission logic here
     };`;
+    const defaultDateColumn = ["createdAt", "deletedAt", "updatedAt"];
 
     // Generate form fields based on schema
     const formFields = schema.fields
+      .filter((field) => !defaultDateColumn.includes(field.name))
       .map((field) => {
         const validationRules = [];
         if (field.required)
@@ -322,7 +324,7 @@ export default function generate(schema: FormSchema) {
     ) {
       return `
       ${Array.from(imports).join("\n")}
-      ${generateEntityForm(schema.title, formFields)}
+      ${generateEntityForm(schema.title, formFields, schema)}
       `;
     }
     return assembleComponentCode(imports, schema, stateAndHandlers, formFields);
