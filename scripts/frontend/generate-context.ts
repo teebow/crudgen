@@ -11,15 +11,23 @@ export function generateDataContex(models: PrismaModel[]): string {
     })
     .join("\n");
 
+  const dataContextType = models
+    .map((model) => {
+      // This function generates the route code for each model.
+      const modelName = pascalCase(model.name);
+      const modelNameLower = model.name.toLowerCase();
+      return ` ${modelNameLower}: ReturnType<typeof useApi<${modelName}Dto>>;`;
+    })
+    .join("\n");
+
   // This function generates a React component for a form based on the entity name.
   const code = ` 
 import { createContext } from "react";
 ${typeDtoImports}
 import type { useApi } from "../api/use-api";
 
-interface DataContextType {
-  users: ReturnType<typeof useApi<UserDto>>;
-  posts: ReturnType<typeof useApi<PostDto>>;
+type DataContextType {
+ ${dataContextType}
 }
 
 export const DataContext = createContext<DataContextType | undefined>(
