@@ -11,6 +11,9 @@ import { generatePageCode } from "./frontend/generate-page";
 import { generateMainApp } from "./frontend/generate-main-app";
 import { generateSidebar } from "./frontend/generate-sidebar";
 import { generateList } from "./frontend/generate-list";
+import { generateDataContex } from "./frontend/generate-context";
+import { writeContentToFile } from "./utils/create-file-with-content";
+import { generateDataProvider } from "./frontend/generate-data-provider";
 
 //todo tester
 export async function generateFrontend(
@@ -53,17 +56,34 @@ export async function generateFrontend(
     templateDir,
     frontendPath
   );
-
-  const sidebar = generateSidebar(models);
-  const createComponentsDir = path.join(frontendPath, "src/components");
-  await fs.ensureDir(createComponentsDir);
-  // Write the sidebar component
-  await fs.writeFile(
-    path.join(createComponentsDir, "CollapsibleSidebar.tsx"),
-    sidebar
+  await withSpinner("Création du fichier api-client", copyUseDataFileTemplate)(
+    templateDir,
+    frontendPath
   );
-  const mainApp = generateMainApp(models);
-  await fs.writeFile(path.join(frontendPath, "src/App.tsx"), mainApp);
+
+  await writeContentToFile(
+    generateDataContex(models),
+    path.join(frontendPath, "src/core/context"),
+    "DataContext.tsx"
+  );
+
+  await writeContentToFile(
+    generateDataProvider(models),
+    path.join(frontendPath, "src/core/context"),
+    "DataProvider.tsx"
+  );
+
+  await writeContentToFile(
+    generateSidebar(models),
+    path.join(frontendPath, "src/components"),
+    "CollapsibleSidebar.tsx"
+  );
+
+  await writeContentToFile(
+    generateMainApp(models),
+    path.join(frontendPath, "src"),
+    "App.tsx"
+  );
 
   console.log("✅ Composants CRUD frontend générés avec succès.");
 }
@@ -131,6 +151,16 @@ async function generateCRUDComponenst(
 async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
   const templateApiPath = path.join(templateDir, "api");
   const outputCoreDirectory = path.join(frontendPath, "src/core/api/");
+  await fs.ensureDir(outputCoreDirectory);
+  await fs.copy(templateApiPath, outputCoreDirectory);
+}
+
+async function copyUseDataFileTemplate(
+  templateDir: string,
+  frontendPath: string
+) {
+  const templateApiPath = path.join(templateDir, "context");
+  const outputCoreDirectory = path.join(frontendPath, "src/core/context/");
   await fs.ensureDir(outputCoreDirectory);
   await fs.copy(templateApiPath, outputCoreDirectory);
 }

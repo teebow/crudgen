@@ -1,10 +1,10 @@
 // src/api/clientApi.ts
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/',
+  baseURL: "http://localhost:3000/",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -14,12 +14,12 @@ export const clientApi = {
     return response.data;
   },
 
-  post: async <T>(url: string, data: any): Promise<T> => {
+  post: async <T>(url: string, data: Partial<T>): Promise<T> => {
     const response = await api.post<T>(url, data);
     return response.data;
   },
 
-  put: async <T>(url: string, data: any): Promise<T> => {
+  put: async <T>(url: string, data: Partial<T>): Promise<T> => {
     const response = await api.put<T>(url, data);
     return response.data;
   },

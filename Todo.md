@@ -17,7 +17,7 @@ TODO [ ] Frontal avec reverse proxy pour l'api
 TODO [ ] Externaliser les labels
 [x] Check copy .env
 [x] add auto createdAt, deletedAt and updatedAt column
-TODO [ ] manage date colmun (deletedAt...) display
+TODO [x] manage date colmun (deletedAt...) display
 [ ] Jolie design :)
 [ ] ajouter authentification back et front
 [ ] default rbac ?
@@ -27,7 +27,8 @@ TODO [ ] manage date colmun (deletedAt...) display
 [ ] https://github.com/vegardit/prisma-generator-nestjs-dto?tab=readme-ov-file#usage
 [ ] voir exemple sur le site prisma
 [ ] migration init prisma à faire ?
-
+[ ] Copier main.tsx dans backend
+[ ] HTTP2
 
 Voir autres best practices
 https://github.com/notiz-dev/nestjs-prisma-starter/blob/main/src/posts/posts.resolver.ts

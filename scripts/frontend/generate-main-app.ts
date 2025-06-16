@@ -24,10 +24,12 @@ export function generateMainApp(models: PrismaModel[]): string {
   const code = `import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { CollapsibleSidebar } from './components/CollapsibleSidebar';
+import { DataProvider } from "./core/context/DataProvider";
 ${componentsImport}
 
 const App: React.FC = () => {
   return (
+  <DataProvider>
     <Router>
       <div className="flex h-screen bg-background text-foreground">
         <CollapsibleSidebar />
@@ -38,6 +40,7 @@ const App: React.FC = () => {
         </main>
       </div>
     </Router>
+  </DataProvider>
   );
 };
 

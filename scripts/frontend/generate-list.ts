@@ -49,7 +49,7 @@ import {
 import { Icon } from "@iconify/react";
 import { DeleteConfirmModal } from "../components/DeleteModale";
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
-import { useApi } from "../core/api/use-api";
+import { useData } from "../core/context/use-data";
 import CustomDrawer from "../components/Drawer";
 import ${entityCapitalized}Page from "./${entityCapitalized}Page";
 
@@ -68,9 +68,10 @@ export const ${entityCapitalized}List = () => {
 
   // Current ${entityLower} being edited or deleted
   const [currentItem, setCurrentItem] = React.useState<${entityCapitalized}Dto | null>(null);
-  const { useList, useDelete } = useApi<${entityCapitalized}Dto>("${entityLower}");
-  const { data: ${entityLower}List, isLoading } = useList();
-  const { mutateAsync: delete${entityCapitalized} } = useDelete();
+
+  const { ${entityLower} } = useData();
+  const { data: ${entityLower}List, isLoading } = ${entityLower}.useList();
+  const { mutateAsync: delete${entityCapitalized}  } = ${entityLower}.useDelete();
 
   // Handle edit button click
   const handleEdit = (${entityLower}: ${entityCapitalized}Dto) => {
