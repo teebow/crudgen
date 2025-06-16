@@ -47,10 +47,10 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { DeleteConfirmModal } from "../components/DeleteModale";
+import { DeleteConfirmModal } from "@components/DeleteModale";
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
-import { useData } from "../core/context/use-data";
-import CustomDrawer from "../components/Drawer";
+import { useData } from "@core/context/use-data";
+import CustomDrawer from "@components/Drawer";
 import ${entityCapitalized}Page from "./${entityCapitalized}Page";
 
 export const ${entityCapitalized}List = () => {

@@ -6,7 +6,7 @@ import { execSync } from "node:child_process";
 import Handlebars from "handlebars";
 import ora from "ora";
 import generateForm from "./frontend/generate-inputs";
-import { copyConfigTemplate } from "./utils/copy-files";
+import { copyConfigTemplate, copyFiles } from "./utils/copy-files";
 import { generatePageCode } from "./frontend/generate-page";
 import { generateMainApp } from "./frontend/generate-main-app";
 import { generateSidebar } from "./frontend/generate-sidebar";
@@ -48,19 +48,26 @@ export async function generateFrontend(
     templateDir,
     frontendPath
   );
-  await withSpinner(
-    "Copie des fichiers App et index.css",
-    copyAppAndIndexCssTemplate
-  )(templateDir, frontendPath);
-  await withSpinner("Création du fichier api-client", copyApiFileTemplate)(
-    templateDir,
-    frontendPath
-  );
-  await withSpinner("Création du fichier api-client", copyUseDataFileTemplate)(
-    templateDir,
-    frontendPath
+  await withSpinner("Copie des fichiers App et index.css", copyFiles)(
+    path.join(templateDir, "app"),
+    path.join(frontendPath, "src")
   );
 
+  await withSpinner("Création du fichier api-client", copyFiles)(
+    path.join(templateDir, "api"),
+    path.join(frontendPath, "src/core/api/")
+  );
+
+  await withSpinner("Copie use-data hook", copyFiles)(
+    path.join(templateDir, "context"),
+    path.join(frontendPath, "src/core/context/")
+  );
+
+  await withSpinner("Copie utils folder", copyFiles)(
+    path.join(templateDir, "utils"),
+    path.join(frontendPath, "src/utils")
+  );
+  
   await writeContentToFile(
     generateDataContex(models),
     path.join(frontendPath, "src/core/context"),
@@ -146,31 +153,4 @@ async function generateCRUDComponenst(
     const list = generateList(model.name, formSchema);
     await fs.writeFile(path.join(modelDir, `${modelName}List.tsx`), list);
   }
-}
-
-async function copyApiFileTemplate(templateDir: string, frontendPath: string) {
-  const templateApiPath = path.join(templateDir, "api");
-  const outputCoreDirectory = path.join(frontendPath, "src/core/api/");
-  await fs.ensureDir(outputCoreDirectory);
-  await fs.copy(templateApiPath, outputCoreDirectory);
-}
-
-async function copyUseDataFileTemplate(
-  templateDir: string,
-  frontendPath: string
-) {
-  const templateApiPath = path.join(templateDir, "context");
-  const outputCoreDirectory = path.join(frontendPath, "src/core/context/");
-  await fs.ensureDir(outputCoreDirectory);
-  await fs.copy(templateApiPath, outputCoreDirectory);
-}
-
-async function copyAppAndIndexCssTemplate(
-  templateDir: string,
-  frontendPath: string
-) {
-  const templatePath = path.join(templateDir, "app");
-  const outputDir = path.join(frontendPath, "src");
-  await fs.ensureDir(outputDir);
-  await fs.copy(templatePath, outputDir);
 }

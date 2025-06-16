@@ -2,7 +2,7 @@ import type { UserDto } from "@dto/user/dto/user.dto";
 import { Button, Form, Input } from "@heroui/react";
 import { Check } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { useApi } from "../core/api/api-client";
+import { useApi } from "@core/api/api-client";
 
 type UserFormProps = {
   onCancel?: () => void;
@@ -29,7 +29,6 @@ export default function UserForm({
     },
   });
 
-  
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}

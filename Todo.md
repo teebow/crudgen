@@ -30,6 +30,7 @@ TODO [x] manage date colmun (deletedAt...) display
 [ ] Copier main.tsx dans backend
 [ ] HTTP2
 [ ] Utiliser zod pour cleaner le formulaire des données pourries
+[ ] Notification pour requete
 https://chatgpt.com/share/6850471f-d270-8003-b79e-f7c556803544
 
 Voir autres best practices

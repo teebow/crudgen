@@ -11,8 +11,8 @@ export function generatePageCode(
   const code = `import { useState } from "react";
   import ${entityCapitalized}Form from "./${entityCapitalized}Form";
   import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
-  import { useApi } from "../core/api/use-api";
-  import { cleanData } from "../clean-data.ts";
+  import { useApi } from "@core/api/use-api";
+  import { cleanData } from "@utils/clean-data.ts";
 
   type ${entityCapitalized}PageProps = {
     ${entityLower}: ${entityCapitalized}Dto | null;
@@ -44,11 +44,11 @@ export function generatePageCode(
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
           onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
-            cleanData(${entityLower})
+            const cleaned${entityCapitalized}=cleanData(${entityLower})
             if (${entityLower}?.id) {
-              update${entityCapitalized}({ ...${entityLower}, id: ${entityLower}.id });
+              update${entityCapitalized}({ ...cleaned${entityCapitalized}, id: ${entityLower}.id });
             } else {
-              create${entityCapitalized}(${entityLower});
+              create${entityCapitalized}(cleaned${entityCapitalized});
             }
           }}
         />

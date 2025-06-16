@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useApi } from '../core/api/api-client';
+import { useApi } from '@core/api/api-client';
 
 export const {{modelName}}List = () => {
   const { data: items, loading } = useApi<{{modelName}}>('/api/{{modelVar}}');

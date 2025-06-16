@@ -23,7 +23,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@dto/*": ["../shared/dto/*"]
+      "@dto/*": ["../shared/dto/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@core/*": ["./src/core/*"],
+      "@components/*": ["./src/components/*"]
     }
   },
   "include": ["src", "../shared/dto/**/*.ts"]

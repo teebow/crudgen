@@ -1,7 +1,7 @@
 import { useState } from "react";
 import UserForm from "./Form";
 import type { UserDto } from "@dto/user/dto/user.dto";
-import { useApi } from "../core/api/use-api";
+import { useApi } from "@core/api/use-api";
 
 export default function UserPage() {
   const { useCreate, useUpdate } = useApi<UserDto>("user");
