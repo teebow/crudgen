@@ -29,7 +29,7 @@ export function generateEntityForm(
       ) {
         return `${field.name}: "${field.options[0].value}",`;
       } else {
-        return `${field.name}: null,`;
+        return `${field.name}: "",`;
       }
     })
     .filter(Boolean)

@@ -29,6 +29,8 @@ TODO [x] manage date colmun (deletedAt...) display
 [ ] migration init prisma à faire ?
 [ ] Copier main.tsx dans backend
 [ ] HTTP2
+[ ] Utiliser zod pour cleaner le formulaire des données pourries
+https://chatgpt.com/share/6850471f-d270-8003-b79e-f7c556803544
 
 Voir autres best practices
 https://github.com/notiz-dev/nestjs-prisma-starter/blob/main/src/posts/posts.resolver.ts

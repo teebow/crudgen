@@ -12,6 +12,7 @@ export function generatePageCode(
   import ${entityCapitalized}Form from "./${entityCapitalized}Form";
   import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
   import { useApi } from "../core/api/use-api";
+  import { cleanData } from "../clean-data.ts";
 
   type ${entityCapitalized}PageProps = {
     ${entityLower}: ${entityCapitalized}Dto | null;
@@ -43,6 +44,7 @@ export function generatePageCode(
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
           onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
+            cleanData(${entityLower})
             if (${entityLower}?.id) {
               update${entityCapitalized}({ ...${entityLower}, id: ${entityLower}.id });
             } else {
