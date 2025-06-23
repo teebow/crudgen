@@ -19,8 +19,8 @@ export const clientApi = {
     return response.data;
   },
 
-  put: async <T>(url: string, data: Partial<T>): Promise<T> => {
-    const response = await api.put<T>(url, data);
+  patch: async <T>(url: string, data: Partial<T>): Promise<T> => {
+    const response = await api.patch<T>(url, data);
     return response.data;
   },
 

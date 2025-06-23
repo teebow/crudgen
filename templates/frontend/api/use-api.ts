@@ -24,7 +24,7 @@ export const useApi = <T>(entity: string) => {
     useUpdate: () => {
       return useMutation({
         mutationFn: ({ id, ...data }: Partial<T> & { id: number }) =>
-          clientApi.put<T>(`/${entity}/${id}`, data),
+          clientApi.patch<T>(`/${entity}/${id}`, data),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: [entity] }),
       });
     },
