@@ -44,7 +44,7 @@ export function generatePageCode(
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
           onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
-            const cleaned${entityCapitalized}=cleanData(${entityLower})
+            const cleaned${entityCapitalized}=cleanData<${entityCapitalized}Dto>(${entityLower})
             if (${entityLower}?.id) {
               update${entityCapitalized}({ ...cleaned${entityCapitalized}, id: ${entityLower}.id });
             } else {
