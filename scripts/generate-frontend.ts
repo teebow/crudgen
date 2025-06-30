@@ -14,6 +14,7 @@ import { generateList } from "./frontend/generate-list";
 import { generateDataContex } from "./frontend/generate-context";
 import { writeContentToFile } from "./utils/create-file-with-content";
 import { generateDataProvider } from "./frontend/generate-data-provider";
+import { generateFormType } from "./frontend/generate-form-type";
 
 //todo tester
 export async function generateFrontend(
@@ -67,7 +68,7 @@ export async function generateFrontend(
     path.join(templateDir, "utils"),
     path.join(frontendPath, "src/utils")
   );
-  
+
   await writeContentToFile(
     generateDataContex(models),
     path.join(frontendPath, "src/core/context"),
@@ -91,6 +92,10 @@ export async function generateFrontend(
     path.join(frontendPath, "src"),
     "App.tsx"
   );
+
+  spinner.start("Prettier");
+  execSync("bunx prettier --write .");
+  spinner.succeed();
 
   console.log("✅ Composants CRUD frontend générés avec succès.");
 }
@@ -120,6 +125,13 @@ function installDependencies() {
     "tailwindcss@^3",
     "postcss@^8",
     "autoprefixer@^10",
+    "prettier",
+    "eslint",
+    "@typescript-eslint/parser",
+    "@typescript-eslint/eslint-plugin",
+    "prettier",
+    "eslint-plugin-prettier",
+    "eslint-config-prettier",
     "@iconify/react",
   ];
   execSync(`bun add ${devDeps.join(" ")} -d`, {
@@ -148,9 +160,14 @@ async function generateCRUDComponenst(
     await fs.ensureDir(modelDir);
     const form = generateForm(formSchema);
     await fs.writeFile(path.join(modelDir, `${modelName}Form.tsx`), form);
-    const page = generatePageCode(model.name, form);
+    const page = generatePageCode(model.name, form, model);
     await fs.writeFile(path.join(modelDir, `${modelName}Page.tsx`), page);
     const list = generateList(model.name, formSchema);
     await fs.writeFile(path.join(modelDir, `${modelName}List.tsx`), list);
+    const entityType = generateFormType(model.name);
+    await fs.writeFile(
+      path.join(modelDir, `${modelVar}-form.type.ts`),
+      entityType
+    );
   }
 }

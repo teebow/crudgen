@@ -31,6 +31,7 @@ TODO [x] manage date colmun (deletedAt...) display
 [ ] HTTP2
 [ ] Utiliser zod pour cleaner le formulaire des données pourries
 [ ] Notification pour requete
+[ ] Soft delete using prisma extension
 https://chatgpt.com/share/6850471f-d270-8003-b79e-f7c556803544
 
 Voir autres best practices

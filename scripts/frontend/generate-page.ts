@@ -1,39 +1,65 @@
 import { pascalCase } from "change-case";
+import { PrismaModel } from "../prisma-parser";
 
 export function generatePageCode(
   entityName: string,
-  formFields: string
+  formFields: string,
+  model: PrismaModel
 ): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
 
+  const relationsName = (model.fields ||= [])
+    .filter((field) => field.isList)
+    .map((field) => field.name)
+    .filter(Boolean);
+  const connectRelation = relationsName.map(
+    (r) => `${r}:  { connect: [{ id: parseInt(${r}) }] },`
+  );
+
+  const relations =
+    relationsName.length > 0 ? relationsName.join(",") + "," : "";
+
   // This function generates a React component for a page based on the entity name.
-  const code = `import { useState } from "react";
+  const code = `import { useCallback, useState } from "react";
   import ${entityCapitalized}Form from "./${entityCapitalized}Form";
-  import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
+  import type { ${entityCapitalized} } from '@dto/${entityLower}/entities/${entityLower}.entity';
+  import type { Create${entityCapitalized}Dto } from '@dto/${entityLower}/dto/create-${entityLower}.dto';
+  import type { Update${entityCapitalized}Dto } from '@dto/${entityLower}/dto/update-${entityLower}.dto';
   import { useApi } from "@core/api/use-api";
-  import { cleanData } from "@utils/clean-data.ts";
+  import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
+
 
   type ${entityCapitalized}PageProps = {
     ${entityLower}: ${entityCapitalized}Dto | null;
   };
 
   export default function ${entityCapitalized}Page({${entityLower}}: ${entityCapitalized}PageProps) {
-    const { useCreate, useUpdate } = useApi<${entityCapitalized}Dto>("${entityLower}");
-    const { mutateAsync: create } = useCreate();
-    const { mutateAsync: update } = useUpdate();
+    const { useCreate, useUpdate } = useApi<${entityCapitalized}FormDto>("${entityLower}");
+    const { mutateAsync: create } = useCreate<Create${entityCapitalized}Dto>();
+    const { mutateAsync: update } = useUpdate<Update${entityCapitalized}Dto>();
     
-    const [message, setMessage] = useState("");
+    const handleOnSubmit = useCallback(
+        async (data: ${entityCapitalized}) => {
+          const { ${relations} ...rest } = data;
+          
+          const formattedData = {
+            ...rest,
+            ${connectRelation}
+          };
+    
+          if (${entityLower} && ${entityLower}.id) {
+            await update({ ...formattedData, id: ${entityLower}.id });
+            setMessage('${entityLower} updated');
+          } else {
+            await create(formattedData);
+            setMessage('${entityLower} created');
+          }
+        },
+        [${entityLower}, create, update]
+      );
 
-    const create${entityCapitalized} = async (${entityLower}Data: Omit<${entityCapitalized}Dto, "id">) => {
-      await create(${entityLower}Data);
-      setMessage(\`${entityCapitalized} created\`);
-    };
 
-    const update${entityCapitalized} = async (${entityLower}Data: ${entityCapitalized}Dto) => {
-      await update(${entityLower}Data);
-      setMessage(\`${entityCapitalized} updated\`);
-    };
 
     return (
       <div className="w-full mx-auto p-4">
@@ -43,19 +69,8 @@ export function generatePageCode(
 
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
-          onSubmit={(${entityLower}: ${entityCapitalized}Dto) => {
-            const cleaned${entityCapitalized}=cleanData<${entityCapitalized}Dto>(${entityLower})
-            if (${entityLower}?.id) {
-              update${entityCapitalized}({ ...cleaned${entityCapitalized}, id: ${entityLower}.id });
-            } else {
-              create${entityCapitalized}(cleaned${entityCapitalized});
-            }
-          }}
+          onSubmit={handleOnSubmit}
         />
-  
-        {message && (
-          <div className="mt-4 text-green-600 font-medium">{message}</div>
-        )}
       </div>
     );
   }

@@ -39,10 +39,11 @@ export function generateEntityForm(
   const code = `
   ${additionnalImports.join("\n")}
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
+import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
 
 type ${entityCapitalized}FormProps = {
     onCancel?: () => void;
-    onSubmit: (${entityLower}: ${entityCapitalized}Dto) => void;
+    onSubmit: (${entityLower}: ${entityCapitalized}FormDto) => void;
     showCancel?: boolean;
     ${entityLower}: ${entityCapitalized}Dto | null;
 };
@@ -57,7 +58,7 @@ export default function ${entityCapitalized}Form({
         control,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<${entityCapitalized}Dto>({
+    } = useForm<${entityCapitalized}FormDto>({
         defaultValues: ${entityLower} ?? {
         ${defaultValues}
         },

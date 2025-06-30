@@ -4,7 +4,7 @@ import { ChildProcess, execSync } from "node:child_process";
 import { PrismaModel } from "./prisma-parser";
 import { pascalCase } from "change-case";
 import ora from "ora";
-import { copyConfigTemplate } from "./utils/copy-files";
+import { copyConfigTemplate, copyFiles } from "./utils/copy-files";
 import {
   addPrismaServiceToModule,
   updateDtoImportInFiles,
@@ -51,7 +51,6 @@ export async function generateBackend(
   // 5. Installe PrismaService et module global
   spinner.start("Création du module Prisma");
   await updatePrismaSchemaAndGenerateDto(schemaPath);
-  //execSync('bunx prisma migrate dev --name init --skip-seed', { stdio: 'inherit' });
   await setupPrismaModule();
   spinner.succeed("Module Prisma");
 
@@ -64,6 +63,22 @@ export async function generateBackend(
   spinner.start("Copie des fichiers de configuration");
   await copyConfigTemplate(templateDir, outputDir);
   spinner.succeed("Fichiers de configuration copiés");
+
+  // 7. Copie le main.tsx
+  spinner.start("Copie des fichiers de configuration");
+  await copyFiles(path.join(templateDir, "app"), path.join(outputDir, "src"));
+  spinner.succeed("Fichiers de configuration copiés");
+
+  //TODO voir avec docker si stop car ça ne devrait pas marcher, il faudrait lancer d'abord le conteneur
+  spinner.start("Migration prisma");
+  execSync("bunx prisma migrate dev --name init --skip-seed", {
+    stdio: "inherit",
+  });
+  spinner.succeed();
+  // 8. Formate tous les fichiers
+  spinner.start("Prettier");
+  execSync("bunx prettier --write .");
+  spinner.succeed();
 }
 
 async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
@@ -78,7 +93,7 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
     prismaClientImportPath          = ""
     outputToNestJsResourceStructure = "true"
     flatResourceStructure           = "false"
-    exportRelationModifierClasses   = "true"
+    exportRelationModifierClasses   = "false"
     reExport                        = "false"
     generateFileTypes               = "all"
     createDtoPrefix                 = "Create"
@@ -89,7 +104,7 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
     classValidation                 = "false"
     fileNamingStyle                 = "camel"
     noDependencies                  = "true"
-    outputType                      = "class"
+    outputType                      = "interface"
     definiteAssignmentAssertion     = "false"
     requiredResponseApiProperty     = "true"
     prettier                        = "true"

@@ -26,7 +26,7 @@ import { createContext } from "react";
 ${typeDtoImports}
 import type { useApi } from "../api/use-api";
 
-type DataContextType {
+type DataContextType = {
  ${dataContextType}
 }
 

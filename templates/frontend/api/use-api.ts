@@ -1,19 +1,24 @@
-// src/hooks/useUsers.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { clientApi } from "./api-client";
 
-export const useApi = <T>(entity: string) => {
+export const useApi = (entity: string) => {
   const queryClient = useQueryClient();
 
   return {
-    useList: () => {
+    useGetOne: <T>(id: number) => {
+      return useQuery({
+        queryKey: [entity, id],
+        queryFn: () => clientApi.get<T>(`/${entity}/${id}`),
+      });
+    },
+    useList: <T>() => {
       return useQuery({
         queryKey: [entity],
         queryFn: () => clientApi.get<T[]>(`/${entity}`),
       });
     },
 
-    useCreate: () => {
+    useCreate: <T>() => {
       return useMutation({
         mutationFn: (newData: Partial<T>) =>
           clientApi.post<T>(`/${entity}`, newData),
@@ -21,10 +26,10 @@ export const useApi = <T>(entity: string) => {
       });
     },
 
-    useUpdate: () => {
+    useUpdate: <T>() => {
       return useMutation({
         mutationFn: ({ id, ...data }: Partial<T> & { id: number }) =>
-          clientApi.patch<T>(`/${entity}/${id}`, data),
+          clientApi.patch<T>(`/${entity}/${id}`, data as Partial<T>),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: [entity] }),
       });
     },

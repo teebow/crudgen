@@ -3,8 +3,6 @@ import ReactDOM from "react-dom/client";
 import { addToast, HeroUIProvider, ToastProvider } from "@heroui/react";
 import App from "./App.tsx";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// Create a client
 import {
   MutationCache,
   QueryCache,
@@ -28,6 +26,12 @@ const queryClient = new QueryClient({
         title: "Erreur",
         description: error.message,
         color: "danger",
+      });
+    },
+    onSuccess: () => {
+      addToast({
+        title: "Modification enregistrée",
+        color: "success",
       });
     },
   }),

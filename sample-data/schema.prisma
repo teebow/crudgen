@@ -15,13 +15,14 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   name      String
+   /// @DtoConnectHidden
   email     String?  @unique
 
   /// @DtoCreateOptional
-  /// @DtoRelationCanCreateOnCreate
   /// @DtoRelationCanConnectOnCreate
   /// @DtoRelationCanCreateOnUpdate
   /// @DtoRelationCanConnectOnUpdate
+  /// @NestJSDTO.relation("entityDto")
   posts     Post[]
   
   /// @DtoReadOnly
@@ -35,11 +36,10 @@ model Post {
   title     String
   content   String?
   
-  /// @DtoRelationRequired
   /// @DtoRelationCanConnectOnCreate
   author    User?   @relation(fields: [authorId], references: [id])
   authorId  Int?
-
+  published Boolean? @default(false)
   /// @DtoReadOnly
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
