@@ -21,13 +21,13 @@ export async function generateApp(schemaPath: string) {
     await generateBackend(absoluteSchemaPath, models, backendDir);
     spinner.succeed(chalk.green("Backend généré."));
 
-    // spinner.start("Génération du frontend React...");
-    // await generateFrontend(models, frontendDir);
-    // spinner.succeed(chalk.green("Frontend généré."));
+    spinner.start("Génération du frontend React...");
+    await generateFrontend(models, frontendDir);
+    spinner.succeed(chalk.green("Frontend généré."));
 
     console.log(chalk.blueBright("\n🎉 Génération terminée avec succès !"));
-    console.log(chalk.gray("➡️ Backend :"), backendDir);
-    console.log(chalk.gray("➡️ Frontend :"), frontendDir);
+    console.log(chalk.gray("➡️  Backend :"), backendDir);
+    console.log(chalk.gray("➡️  Frontend :"), frontendDir);
   } catch (err) {
     spinner.fail(chalk.red("Erreur lors de la génération :"));
     console.error(err);

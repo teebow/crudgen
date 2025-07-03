@@ -29,6 +29,7 @@ TODO [x] manage date colmun (deletedAt...) display
 [ ] migration init prisma à faire ?
 [ ] Copier main.tsx dans backend
 [ ] HTTP2
+[ ] Voir pour utiliser react router a la place de tanstack router
 [ ] Utiliser zod pour cleaner le formulaire des données pourries
 [ ] Notification pour requete
 [ ] Soft delete using prisma extension
