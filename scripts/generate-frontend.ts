@@ -45,10 +45,11 @@ export async function generateFrontend(
   );
 
   //update config files and copy templates
-  await withSpinner("Copie des fichiers de configuration", copyConfigTemplate)(
-    templateDir,
+  await withSpinner("Copie des fichiers de configuration", copyFiles)(
+    path.join(templateDir, "config/shadcn"),
     frontendPath
   );
+
   await withSpinner("Copie des fichiers App et index.css", copyFiles)(
     path.join(templateDir, "app"),
     path.join(frontendPath, "src")

@@ -16,10 +16,10 @@ export async function generateApp(schemaPath: string) {
     const frontendDir = path.join(baseDir, "generated/app-frontend");
     const backendDir = path.join(baseDir, "generated/app-backend");
 
-    spinner.start("Génération du backend NestJS...");
+    /*spinner.start("Génération du backend NestJS...");
     const absoluteSchemaPath = path.resolve(schemaPath);
     await generateBackend(absoluteSchemaPath, models, backendDir);
-    spinner.succeed(chalk.green("Backend généré."));
+    spinner.succeed(chalk.green("Backend généré."));*/
 
     spinner.start("Génération du frontend React...");
     await generateFrontend(models, frontendDir);
