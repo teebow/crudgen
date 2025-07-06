@@ -37,27 +37,23 @@ function ReactHookFromControllerWrapper(
   return ` <Controller
             key="${name}"
             name="${name}"
-            control={control}
+            control={form.control}
             ${validationRules}
-            render={({ field: { onChange, value } }) => (
-              ${content}
+            render={(field) => (
+            <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                ${content}
+                </FormControl>
+                <FormDescription></FormDescription>
+                <FormMessage />
+              </FormItem>
             )}
           />`;
 }
 
 export function renderInputField(field: FormField) {
-  return `<Input
-        id="${field.name}"
-        label="${field.label}"
-        type="${field.type}"
-        placeholder="${field.placeholder || ""}"
-        isRequired={${field.required || false}}
-        value={value || ""}
-        onValueChange={onChange}
-        isInvalid={!!errors.${field.name}}
-        errorMessage={errors.${field.name}?.message}
-        className="mb-4"
-    />`;
+  return `<Input {...field} className="mb-4" placeholder={field.field.name} />`;
 }
 
 export function renderTextareaField(field: FormField) {
@@ -78,22 +74,20 @@ export function renderSelectField(field: FormField) {
   const options = field.options
     ?.map(
       (opt) =>
-        `  <SelectItem key="${opt.value}" value="${opt.value}">${opt.label}</SelectItem>`
+        `  <SelectItem value="${opt.value}">${opt.label}</SelectItem>`
     )
     .join("\n");
 
-  return `<Select
-            id="${field.name}"
-            label="${field.label}"
-            isRequired={${field.required || false}}
-            selectedKeys={value ? [value] : []}
-            onChange={(e) => onChange(e.target.value)}
-            isInvalid={!!errors.${field.name}}
-            errorMessage={errors.${field.name}?.message}
-            className="mb-4"
-          >
-    ${options}
-    </Select>`;
+  return ` <Select {...field} onValueChange={field.onChange} defaultValue={field.value} className="mb-4">
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder={field.field.name} />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  ${options}
+                </SelectContent>
+              </Select>`;
 }
 
 export function renderCheckboxField(field: FormField) {
@@ -186,16 +180,16 @@ export default function generate(schema: FormSchema) {
     const importReact = () => `import { useState } from "react";`;
     const importReactHookForm = () =>
       `import { useForm, Controller } from "react-hook-form";`;
-    const importForm = () => `import { Form } from "@heroui/form";`;
+    const importForm = () => `import { Form, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
     const importInputTextarea = () =>
-      `import { Input, Textarea } from "@heroui/input";`;
-    const importButton = () => `import { Button } from "@heroui/button";`;
+      `import { Input, Textarea } from "@/components/ui/input";`;
+    const importButton = () => `import { Button } from "@/components/ui/button";`;
     const importSelect = () =>
-      `import { Select, SelectItem } from "@heroui/select";`;
-    const importCheckbox = () => `import { Checkbox } from "@heroui/checkbox";`;
+      `import { Select, SelectItem } from "@/components/ui/select";`;
+    const importCheckbox = () => `import { Checkbox } from "@/components/ui/checkbox";`;
     const importDatePicker = () =>
-      `import { DatePicker } from "@heroui/date-picker";`;
-    const importIcon = () => `import { Icon } from "@iconify/react";`;
+      `import { DatePicker } from "@/components/ui/date-picker";`;
+    const importIcon = () => `import { Check } from 'lucide-react';`;
     const imports = new Set<string>([
       importReact(),
       importReactHookForm(),

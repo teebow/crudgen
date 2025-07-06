@@ -26,7 +26,7 @@ export function generatePageCode(
   import type { ${entityCapitalized} } from '@dto/${entityLower}/entities/${entityLower}.entity';
   import type { Create${entityCapitalized}Dto } from '@dto/${entityLower}/dto/create-${entityLower}.dto';
   import type { Update${entityCapitalized}Dto } from '@dto/${entityLower}/dto/update-${entityLower}.dto';
-  import { useApi } from "@core/api/use-api";
+  import { useApi } from "@/core/api/use-api";
   import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
 
 
@@ -35,12 +35,12 @@ export function generatePageCode(
   };
 
   export default function ${entityCapitalized}Page({${entityLower}}: ${entityCapitalized}PageProps) {
-    const { useCreate, useUpdate } = useApi<${entityCapitalized}FormDto>("${entityLower}");
+    const { useCreate, useUpdate } = useApi("${entityLower}");
     const { mutateAsync: create } = useCreate<Create${entityCapitalized}Dto>();
     const { mutateAsync: update } = useUpdate<Update${entityCapitalized}Dto>();
     
     const handleOnSubmit = useCallback(
-        async (data: ${entityCapitalized}) => {
+        async (data: ${entityCapitalized}FormDto) => {
           const { ${relations} ...rest } = data;
           
           const formattedData = {
@@ -50,10 +50,8 @@ export function generatePageCode(
     
           if (${entityLower} && ${entityLower}.id) {
             await update({ ...formattedData, id: ${entityLower}.id });
-            setMessage('${entityLower} updated');
           } else {
             await create(formattedData);
-            setMessage('${entityLower} created');
           }
         },
         [${entityLower}, create, update]

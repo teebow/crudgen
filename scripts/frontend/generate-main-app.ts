@@ -1,7 +1,10 @@
 import { pascalCase } from "change-case";
 import { PrismaModel } from "../prisma-parser";
 
-export function generateMainApp(models: PrismaModel[]): string {
+export function generateMainApp(
+  models: PrismaModel[],
+  content: (componentsImport: string, routes: string) => string
+): string {
   const routes = models
     .map((model) => {
       // This function generates the route code for each model.
@@ -20,30 +23,5 @@ export function generateMainApp(models: PrismaModel[]): string {
     })
     .join("\n");
 
-  // This function generates the main application code for a React app with a collapsible sidebar.
-  const code = `import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { CollapsibleSidebar } from './components/CollapsibleSidebar';
-import { DataProvider } from "./core/context/DataProvider";
-${componentsImport}
-
-const App: React.FC = () => {
-  return (
-  <DataProvider>
-    <Router>
-      <div className="flex h-screen bg-background text-foreground">
-        <CollapsibleSidebar />
-        <main className="flex-1 p-4 overflow-auto">
-          <Routes>
-            ${routes}
-          </Routes>
-        </main>
-      </div>
-    </Router>
-  </DataProvider>
-  );
-};
-
-export default App;`;
-  return code;
+  return content(componentsImport, routes);
 }

@@ -37,7 +37,7 @@ export function generateEntityForm(
 
   // This function generates a React component for a form based on the entity name.
   const code = `
-  ${additionnalImports.join("\n")}
+  ${additionnalImports.join("\n")}  
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
 import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
 
@@ -54,11 +54,7 @@ export default function ${entityCapitalized}Form({
     onSubmit,
     showCancel,
 }: ${entityCapitalized}FormProps) {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm<${entityCapitalized}FormDto>({
+    const form = useForm<${entityCapitalized}FormDto>({
         defaultValues: ${entityLower} ?? {
         ${defaultValues}
         },
@@ -66,8 +62,9 @@ export default function ${entityCapitalized}Form({
 
     
     return (
-        <Form
-            onSubmit={handleSubmit(onSubmit)}
+     <Form {...form}>
+        <form
+            onSubmit={form.handleSubmit(onSubmit)}
             className="w-full justify-center items-center space-y-4"
             id="${entityLower}-form"
         >
@@ -80,18 +77,13 @@ export default function ${entityCapitalized}Form({
                             Cancel
                         </Button>
                     )}
-                    <Button
-                        color="primary"
-                        type="submit"
-                        form="${entityLower}-form"
-                        className="w-full"
-                        isLoading={isSubmitting}
-                        startContent={!isSubmitting && <Icon icon="lucide:check" />}
-                    >
+                    <Button variant="default" type="submit" form="${entityLower}-form" className="w-full">
+                        {!form.formState.isSubmitting && <Check />}
                         {${entityLower} ? "Update" : "Create"}
                     </Button>
                 </div>
             </div>
+            </form>
         </Form>
     );
 }

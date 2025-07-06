@@ -9,12 +9,17 @@ import generateForm from "./frontend/generate-inputs";
 import { copyConfigTemplate, copyFiles } from "./utils/copy-files";
 import { generatePageCode } from "./frontend/generate-page";
 import { generateMainApp } from "./frontend/generate-main-app";
-import { generateSidebar } from "./frontend/generate-sidebar";
 import { generateList } from "./frontend/generate-list";
 import { generateDataContex } from "./frontend/generate-context";
 import { writeContentToFile } from "./utils/create-file-with-content";
 import { generateDataProvider } from "./frontend/generate-data-provider";
 import { generateFormType } from "./frontend/generate-form-type";
+import {
+  generateMenuData,
+  installShadcnDeps,
+  shadcnMainAppContent,
+} from "./lib/shadcn";
+import { generateColumns } from "./frontend/generate-column";
 
 //todo tester
 export async function generateFrontend(
@@ -38,7 +43,8 @@ export async function generateFrontend(
 
   await withSpinner("Création avec create vite", createViteApp)();
   await withSpinner("Installation des dépendances", installDependencies)();
-  await withSpinner("Génération des composants crud", generateCRUDComponenst)(
+
+  await withSpinner("Génération des composants crud", generateCRUDComponents)(
     templateDir,
     frontendPath,
     models
@@ -46,13 +52,20 @@ export async function generateFrontend(
 
   //update config files and copy templates
   await withSpinner("Copie des fichiers de configuration", copyFiles)(
-    path.join(templateDir, "config/shadcn"),
+    path.join(templateDir, "config"),
     frontendPath
   );
 
-  await withSpinner("Copie des fichiers App et index.css", copyFiles)(
+  await withSpinner("Copie des fichiers dans src", copyFiles)(
     path.join(templateDir, "app"),
     path.join(frontendPath, "src")
+  );
+
+  await withSpinner("Installation des dépendances UI", installShadcnDeps)();
+
+  await withSpinner("Copie des fichiers dans src", copyFiles)(
+    path.join(templateDir, "components"),
+    path.join(frontendPath, "src/components")
   );
 
   await withSpinner("Création du fichier api-client", copyFiles)(
@@ -82,14 +95,19 @@ export async function generateFrontend(
     "DataProvider.tsx"
   );
 
-  await writeContentToFile(
-    generateSidebar(models),
-    path.join(frontendPath, "src/components"),
-    "CollapsibleSidebar.tsx"
-  );
+  // await writeContentToFile(
+  //   generateSidebar(models),
+  //   path.join(frontendPath, "src/components"),
+  //   "CollapsibleSidebar.tsx"
+  // );
 
   await writeContentToFile(
-    generateMainApp(models),
+    generateMenuData(models),
+    path.join(frontendPath, "src"),
+    "MenuData.tsx"
+  );
+  await writeContentToFile(
+    generateMainApp(models, shadcnMainAppContent),
     path.join(frontendPath, "src"),
     "App.tsx"
   );
@@ -105,6 +123,9 @@ function createViteApp() {
   execSync(`bun create vite . --template react-ts`, {
     stdio: "inherit",
   });
+  execSync(`bun install`, {
+    stdio: "inherit",
+  });
 }
 
 function installDependencies() {
@@ -112,9 +133,6 @@ function installDependencies() {
     "react-hook-form",
     "react-router-dom",
     "axios",
-    "@heroui/react",
-    "framer-motion",
-    "@react-aria/i18n",
     "@tanstack/react-query",
     "@internationalized/date",
   ];
@@ -123,29 +141,26 @@ function installDependencies() {
   });
 
   const devDeps = [
-    "tailwindcss@^3",
-    "postcss@^8",
-    "autoprefixer@^10",
     "prettier",
     "eslint",
     "@typescript-eslint/parser",
     "@typescript-eslint/eslint-plugin",
     "prettier",
+    "prettier-plugin-tailwindcss",
     "eslint-plugin-prettier",
     "eslint-config-prettier",
-    "@iconify/react",
   ];
   execSync(`bun add ${devDeps.join(" ")} -d`, {
     stdio: "inherit",
   });
 }
 
-async function generateCRUDComponenst(
+async function generateCRUDComponents(
   templateDir: string,
   frontendPath: string,
   models: PrismaModel[]
 ) {
-  const pagesPath = path.join(frontendPath, "src");
+  const pagesPath = path.join(frontendPath, "src/features");
 
   await fs.ensureDir(pagesPath);
   //const templates = ["List", "Create", "Update", "Delete"];
@@ -163,6 +178,8 @@ async function generateCRUDComponenst(
     await fs.writeFile(path.join(modelDir, `${modelName}Form.tsx`), form);
     const page = generatePageCode(model.name, form, model);
     await fs.writeFile(path.join(modelDir, `${modelName}Page.tsx`), page);
+    const columns = generateColumns(model.name, formSchema);
+    await fs.writeFile(path.join(modelDir, `columns.tsx`), columns);
     const list = generateList(model.name, formSchema);
     await fs.writeFile(path.join(modelDir, `${modelName}List.tsx`), list);
     const entityType = generateFormType(model.name);

@@ -22,11 +22,9 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
     "paths": {
       "@dto/*": ["../shared/dto/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@core/*": ["./src/core/*"],
-      "@components/*": ["./src/components/*"],
       "@/*": ["./src/*"]
     }
   },
