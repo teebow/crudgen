@@ -73,8 +73,7 @@ export function renderTextareaField(field: FormField) {
 export function renderSelectField(field: FormField) {
   const options = field.options
     ?.map(
-      (opt) =>
-        `  <SelectItem value="${opt.value}">${opt.label}</SelectItem>`
+      (opt) => `  <SelectItem value="${opt.value}">${opt.label}</SelectItem>`
     )
     .join("\n");
 
@@ -180,13 +179,16 @@ export default function generate(schema: FormSchema) {
     const importReact = () => `import { useState } from "react";`;
     const importReactHookForm = () =>
       `import { useForm, Controller } from "react-hook-form";`;
-    const importForm = () => `import { Form, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
+    const importForm = () =>
+      `import { Form, FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
     const importInputTextarea = () =>
       `import { Input } from "@/components/ui/input";`;
-    const importButton = () => `import { Button } from "@/components/ui/button";`;
+    const importButton = () =>
+      `import { Button } from "@/components/ui/button";`;
     const importSelect = () =>
       `import { Select, SelectItem } from "@/components/ui/select";`;
-    const importCheckbox = () => `import { Checkbox } from "@/components/ui/checkbox";`;
+    const importCheckbox = () =>
+      `import { Checkbox } from "@/components/ui/checkbox";`;
     const importDatePicker = () =>
       `import { DatePicker } from "@/components/ui/date-picker";`;
     const importIcon = () => `import { Check } from 'lucide-react';`;

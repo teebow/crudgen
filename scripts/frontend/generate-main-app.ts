@@ -19,7 +19,7 @@ export function generateMainApp(
       // This function generates the import statement for each model's page component.
       const modelName = pascalCase(model.name);
       const modelNameLower = model.name.toLowerCase();
-      return `import ${modelName}List from './${modelNameLower}/${modelName}List';`;
+      return `import ${modelName}List from './features/${modelNameLower}/${modelName}List';`;
     })
     .join("\n");
 
