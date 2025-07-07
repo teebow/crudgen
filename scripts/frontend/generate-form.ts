@@ -65,24 +65,24 @@ export default function ${entityCapitalized}Form({
      <Form {...form}>
         <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full justify-center items-center space-y-4"
+            className="w-full justify-center items-center"
             id="${entityLower}-form"
         >
-            <div className="flex flex-col  w-full">
+            
                ${formFields}
 
                 <div className="flex gap-4">
                     {showCancel && (
-                        <Button variant="flat" onPress={onCancel}>
-                            Cancel
-                        </Button>
+                      <Button variant="secondary" onClick={onCancel}>
+                        Cancel
+                      </Button>
                     )}
                     <Button variant="default" type="submit" form="${entityLower}-form" className="w-full">
                         {!form.formState.isSubmitting && <Check />}
                         {${entityLower} ? "Update" : "Create"}
                     </Button>
                 </div>
-            </div>
+            
             </form>
         </Form>
     );

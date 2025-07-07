@@ -18,10 +18,13 @@ import { DataTablePagination } from '@/components/table/data-table-pagination';
 import { DataTableViewOptions } from './data-table-view-options';
 import { useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '../ui/button';
+import { Plus } from 'lucide-react';
 
 export interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  entityName?: string; // Optional: name of the entity for better UX
   isLoading?: boolean;
   onRowDoubleClick?: (row: Row<TData>) => void;
 }
@@ -29,6 +32,7 @@ export interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  entityName,
   isLoading,
   onRowDoubleClick,
 }: DataTableProps<TData, TValue>) {
@@ -42,7 +46,7 @@ export function DataTable<TData, TValue>({
       isLoading
         ? columns.map((column) => ({
             ...column,
-            Cell: <Skeleton />,
+            cell: () => <Skeleton className="h-4" />,
           }))
         : columns,
     [isLoading, columns]
@@ -70,6 +74,9 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center py-4">
+        <Button variant="outline" className="mr-2">
+          <Plus /> {entityName}
+        </Button>
         <Input
           placeholder="Filter emails..."
           value={table.getColumn('email')?.getFilterValue() as string}

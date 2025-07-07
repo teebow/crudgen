@@ -10,7 +10,7 @@ export function generateMainApp(
       // This function generates the route code for each model.
       const modelName = pascalCase(model.name);
       const modelNameLower = model.name.toLowerCase();
-      return `<Route path="/${modelNameLower}" element={<${modelName}Page />} />`;
+      return `<Route path="/${modelNameLower}" element={<${modelName}List />} />`;
     })
     .join("\n");
 
@@ -19,7 +19,7 @@ export function generateMainApp(
       // This function generates the import statement for each model's page component.
       const modelName = pascalCase(model.name);
       const modelNameLower = model.name.toLowerCase();
-      return `import ${modelName}Page  from './${modelNameLower}/${modelName}Page';`;
+      return `import ${modelName}List from './${modelNameLower}/${modelName}List';`;
     })
     .join("\n");
 

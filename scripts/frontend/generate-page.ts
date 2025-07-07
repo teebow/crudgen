@@ -27,14 +27,16 @@ export function generatePageCode(
   import type { Create${entityCapitalized}Dto } from '@dto/${entityLower}/dto/create-${entityLower}.dto';
   import type { Update${entityCapitalized}Dto } from '@dto/${entityLower}/dto/update-${entityLower}.dto';
   import { useApi } from "@/core/api/use-api";
+  import type { ${entityCapitalized}Dto } from '@dto/${entityLower}/dto/${entityLower}.dto';
   import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
 
 
   type ${entityCapitalized}PageProps = {
     ${entityLower}: ${entityCapitalized}Dto | null;
+    showTitle?: boolean;
   };
 
-  export default function ${entityCapitalized}Page({${entityLower}}: ${entityCapitalized}PageProps) {
+  export default function ${entityCapitalized}Page({${entityLower}, showTitle}: ${entityCapitalized}PageProps) {
     const { useCreate, useUpdate } = useApi("${entityLower}");
     const { mutateAsync: create } = useCreate<Create${entityCapitalized}Dto>();
     const { mutateAsync: update } = useUpdate<Update${entityCapitalized}Dto>();
@@ -61,10 +63,8 @@ export function generatePageCode(
 
     return (
       <div className="w-full mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">
-          {${entityLower} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}
-        </h1>
-
+      { showTitle ? <h1 className="mb-4 text-2xl font-bold">{${entityLower} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}</h1> : null }
+    
         <${entityCapitalized}Form
           ${entityLower}={${entityLower}}
           onSubmit={handleOnSubmit}

@@ -34,13 +34,13 @@ function ReactHookFromControllerWrapper(
   validationRules: string,
   content: string
 ) {
-  return ` <Controller
+  return ` <FormField
             key="${name}"
             name="${name}"
             control={form.control}
             ${validationRules}
-            render={(field) => (
-            <FormItem>
+            render={({ field }) => (
+              <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                 ${content}
@@ -53,7 +53,7 @@ function ReactHookFromControllerWrapper(
 }
 
 export function renderInputField(field: FormField) {
-  return `<Input {...field} className="mb-4" placeholder={field.field.name} />`;
+  return `<Input {...field} className="mb-4" placeholder={field.name} />`;
 }
 
 export function renderTextareaField(field: FormField) {
@@ -182,7 +182,7 @@ export default function generate(schema: FormSchema) {
       `import { useForm, Controller } from "react-hook-form";`;
     const importForm = () => `import { Form, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
     const importInputTextarea = () =>
-      `import { Input, Textarea } from "@/components/ui/input";`;
+      `import { Input } from "@/components/ui/input";`;
     const importButton = () => `import { Button } from "@/components/ui/button";`;
     const importSelect = () =>
       `import { Select, SelectItem } from "@/components/ui/select";`;

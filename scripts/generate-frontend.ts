@@ -133,6 +133,8 @@ function installDependencies() {
     "react-hook-form",
     "react-router-dom",
     "axios",
+    "zod",
+    "@hookform/resolvers",
     "@tanstack/react-query",
     "@internationalized/date",
   ];
