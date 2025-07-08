@@ -27,6 +27,7 @@ export interface DataTableProps<TData, TValue> {
   entityName?: string; // Optional: name of the entity for better UX
   isLoading?: boolean;
   onRowDoubleClick?: (row: Row<TData>) => void;
+  onAddNew?: () => void; // Optional: callback for adding new entity
 }
 
 export function DataTable<TData, TValue>({
@@ -35,6 +36,7 @@ export function DataTable<TData, TValue>({
   entityName,
   isLoading,
   onRowDoubleClick,
+  onAddNew,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -74,7 +76,7 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center py-4">
-        <Button variant="outline" className="mr-2">
+        <Button variant="outline" className="mr-2" onClick={onAddNew} disabled={!onAddNew}>
           <Plus /> {entityName}
         </Button>
         <Input

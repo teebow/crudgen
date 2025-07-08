@@ -1,3 +1,4 @@
+import { pascalCase } from "change-case";
 import { ignoreDefaultDateFields } from "../utils/ignore-field";
 import { generateEntityForm } from "./generate-form";
 
@@ -32,8 +33,12 @@ export interface FormSchema {
 function ReactHookFromControllerWrapper(
   name: string,
   validationRules: string,
-  content: string
+  content: string,
+  required?: boolean
 ) {
+  const requiredSymbol = required
+    ? '<p className="text-destructive">*</p>'
+    : "";
   return ` <FormField
             key="${name}"
             name="${name}"
@@ -41,7 +46,7 @@ function ReactHookFromControllerWrapper(
             ${validationRules}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>${pascalCase(name)} ${requiredSymbol}</FormLabel>
                 <FormControl>
                 ${content}
                 </FormControl>
@@ -53,21 +58,15 @@ function ReactHookFromControllerWrapper(
 }
 
 export function renderInputField(field: FormField) {
-  return `<Input {...field} className="mb-4" placeholder={field.name} />`;
+  return `<Input {...field}  placeholder={field.name} />`;
+}
+export function renderRelationCombobox(field: FormField) {
+  return `<RessourceCombobox {...field} resource="${field.name}" idKey="id" labelKey="${field.label}" valueKey="${field.label}" />`;
 }
 
 export function renderTextareaField(field: FormField) {
   return `<Textarea
-        id="${field.name}"
-        label="${field.label}"
-        placeholder="${field.placeholder || ""}"
-        isRequired={${field.required || false}}
-        value={value || ""}
-        onValueChange={onChange}
-        isInvalid={!!errors.${field.name}}
-        errorMessage={errors.${field.name}?.message}
-        className="mb-4"
-    />`;
+        {...field}  placeholder={field.name} />`;
 }
 
 export function renderSelectField(field: FormField) {
@@ -160,8 +159,9 @@ export default function generate(schema: FormSchema) {
       `import { useForm } from "react-hook-form";`;
     const importForm = () =>
       `import { Form, FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
-    const importInputTextarea = () =>
-      `import { Input } from "@/components/ui/input";`;
+    const importTextarea = () =>
+      `import { Textarea } from "@/components/ui/textarea";`;
+    const importInput = () => `import { Input } from "@/components/ui/input";`;
     const importButton = () =>
       `import { Button } from "@/components/ui/button";`;
     const importSelect = () =>
@@ -170,6 +170,8 @@ export default function generate(schema: FormSchema) {
       `import { Checkbox } from "@/components/ui/checkbox";`;
     const importDatePicker = () =>
       `import { DatePicker } from "@/components/ui/date-picker";`;
+    const importRelationCombobox = () =>
+      `import  RessourceCombobox  from "@/components/ressource-combobox";`;
     const importIcon = () => `import { Check } from 'lucide-react';`;
     const imports = new Set<string>([
       //importReact(),
@@ -243,46 +245,52 @@ export default function generate(schema: FormSchema) {
           case "tel":
           case "url":
           case "number":
-            imports.add(importInputTextarea());
+            imports.add(importInput());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderInputField(field)
+              renderInputField(field),
+              field.required
             );
           case "textarea":
-            imports.add(importInputTextarea());
+            imports.add(importTextarea());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderTextareaField(field)
+              renderTextareaField(field),
+              field.required
             );
           case "select":
             imports.add(importSelect());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderSelectField(field)
+              renderSelectField(field),
+              field.required
             );
           case "checkbox":
             imports.add(importCheckbox());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderCheckboxField(field)
+              renderCheckboxField(field),
+              field.required
             );
           case "date":
             imports.add(importDatePicker());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderDateField(field)
+              renderDateField(field),
+              field.required
             );
           default:
-            imports.add(importInputTextarea());
+            imports.add(importRelationCombobox());
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
-              renderDefaultField(field)
+              renderRelationCombobox(field),
+              field.required
             );
         }
       })

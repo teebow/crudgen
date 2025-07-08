@@ -48,7 +48,7 @@ export function prismaModelToFormSchema(model: PrismaModel): FormSchema {
       .map<FormField>((f) => ({
         name: f.name,
         label: f.name.charAt(0).toUpperCase() + f.name.slice(1),
-        type: mapPrismaTypeToFormType(f.type),
+        type: mapPrismaTypeToFormType(f.type) + (f.isList ? "[]" : ""),
         required: !f.isOptional,
       })),
     submitButtonText: "Submit",
@@ -67,7 +67,8 @@ function mapPrismaTypeToFormType(type: string): string {
     case "datetime":
       return "date";
     case "string":
-    default:
       return "text";
+    default:
+      return type;
   }
 }

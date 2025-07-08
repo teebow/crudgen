@@ -66,7 +66,7 @@ export default function ${entityPascal}List() {
         title={selected${entityPascal} ? 'Edit ${entityPascal}' : 'Create ${entityPascal}'}
         description={selected${entityPascal} ? 'Edit ${entityPascal} details' : 'Create a new ${entityPascal}'}
       >
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1">
           <div className="space-y-8 px-6">
             <${entityPascal}Page ${entityLower}={selected${entityPascal}} />
           </div>
