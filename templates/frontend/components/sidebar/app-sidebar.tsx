@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { NavEntities } from './nav-entity';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export type SideBarDataProps = {
   entities: any; // Replace 'any' with the actual type of entities
@@ -29,7 +30,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <div>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Command className="size-4" />
                 </div>
@@ -37,7 +38,8 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                   <span className="truncate font-medium">Tibal APP</span>
                   <span className="truncate text-xs">FD - BCNUM</span>
                 </div>
-              </a>
+                <ModeToggle />
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

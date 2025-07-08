@@ -18,35 +18,10 @@ export function installShadcnDeps() {
   execSync(`bunx --bun shadcn@latest init`, { stdio: "inherit" });
 
   // Install shadcn/ui components
-  const components = [
-    "avatar",
-    "breadcrumb",
-    "button",
-    "collapsible",
-    "dropdown-menu",
-    "input",
-    "separator",
-    "sheet",
-    "sidebar",
-  ];
-
   execSync(
-    `bunx --bun shadcn@latest add ${components.join(" ")} --yes --silent`
-  );
-  const components2 = [
-    "skeleton",
-    "tooltip",
-    "sonner",
-    "select",
-    "checkbox",
-    "form",
-  ];
-  execSync(
-    `bunx --bun shadcn@latest add ${components2.join(" ")} --yes --silent`,
-    { stdio: "inherit" }
+    `bunx --bun shadcn@latest add -a --yes --silent`
   );
 
-  execSync(`bunx --bun shadcn@latest add table`);
   execSync(`bun add @tanstack/react-table`);
 
   console.log("All shadcn/ui dependencies for Vite installed.");

@@ -92,11 +92,7 @@ export function renderSelectField(field: FormField) {
 export function renderCheckboxField(field: FormField) {
   return `<div className="mb-4">
       <Checkbox
-        id="${field.name}"
-        name="${field.name}"
-        isSelected={!!value}
-        onValueChange={onChange}
-        isInvalid={!!errors.${field.name}}
+       {...field}
       >
         ${field.label}
       </Checkbox>
@@ -106,31 +102,14 @@ export function renderCheckboxField(field: FormField) {
 export function renderDateField(field: FormField) {
   return `<div className="mb-4">
       <DatePicker
-        id="${field.name}"
-              label="${field.label}"
-              isRequired={${field.required || false}}
-              value={value ? parseDate(value.toString()) : undefined}
-              onChange={(date) => {
-                if (date) {
-                  onChange(date.toString());
-                }
-              }}
-              isInvalid={!!errors.${field.name}}
-              errorMessage={errors.${field.name}?.message}
+        {...field}
       />
     </div>`;
 }
 
 export function renderDefaultField(field: FormField) {
   return `<Input
-      id="${field.name}"
-            label="${field.label}"
-            type="text"
-            isRequired={${field.required || false}}
-            value={value || ""}
-            onValueChange={onChange}
-            isInvalid={!!errors.${field.name}}
-            errorMessage={errors.${field.name}?.message}
+     {...field}
             className="mb-4"
     />`;
 }
@@ -178,7 +157,7 @@ export default function generate(schema: FormSchema) {
     // Create imports section
     const importReact = () => `import { useState } from "react";`;
     const importReactHookForm = () =>
-      `import { useForm, Controller } from "react-hook-form";`;
+      `import { useForm } from "react-hook-form";`;
     const importForm = () =>
       `import { Form, FormField, FormControl, FormDescription, FormItem, FormLabel, FormMessage } from '@/components/ui/form';`;
     const importInputTextarea = () =>
@@ -193,7 +172,7 @@ export default function generate(schema: FormSchema) {
       `import { DatePicker } from "@/components/ui/date-picker";`;
     const importIcon = () => `import { Check } from 'lucide-react';`;
     const imports = new Set<string>([
-      importReact(),
+      //importReact(),
       importReactHookForm(),
       importForm(),
       importButton(),

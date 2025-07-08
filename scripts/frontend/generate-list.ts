@@ -40,17 +40,29 @@ export default function ${entityPascal}List() {
   const { data: ${entityLower}List, isLoading } = ${entityLower}.useList();
   const [selected${entityPascal}, setSelected${entityPascal}] = useState<${entityPascal} | null>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+  
+  const handleAddNew = () => {
+    setSelected${entityPascal}(null);
+    setOpenDrawer(true);
+  };
+
+  const handleEdit = (row: { original: ${entityPascal} }) => {
+    setSelected${entityPascal}(row.original);
+    setOpenDrawer(true);
+  };
+
+  const handleDrawerClose = () => setOpenDrawer(false);
 
   return (
     <div className="container mx-auto py-10">
       <DataTable columns={columns} data={isLoading ? Array(10).fill({}) : ${entityLower}List} isLoading={isLoading}
-       onRowDoubleClick={(row) => {
-          setSelected${entityPascal}(row.original);
-          setOpenDrawer(true);
-        }} />
+      entityName="${entityPascal}"
+      onAddNew={handleAddNew}
+      onRowDoubleClick={handleEdit}
+       />
       <FormSheet
         open={openDrawer}
-        onOpenChange={() => setOpenDrawer(false)}
+        onOpenChange={handleDrawerClose}
         title={selected${entityPascal} ? 'Edit ${entityPascal}' : 'Create ${entityPascal}'}
         description={selected${entityPascal} ? 'Edit ${entityPascal} details' : 'Create a new ${entityPascal}'}
       >
