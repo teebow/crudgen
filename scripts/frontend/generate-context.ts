@@ -16,7 +16,7 @@ export function generateDataContex(models: PrismaModel[]): string {
 import { createContext } from "react";
 import type { useApi } from "../api/use-api";
 
-type DataContextType = {
+export type DataContextType = {
  ${dataContextType}
 }
 

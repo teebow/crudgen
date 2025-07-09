@@ -3,9 +3,10 @@ import MultipleSelector from './combobox';
 import type { Option } from './combobox';
 import { useData } from '../core/context/use-data';
 import { Skeleton } from './ui/skeleton';
+import type { DataContextType } from '@/core/context/DataContext';
 
 interface RessourceComboboxProps {
-  resource: 'user' | 'post'; // e.g., 'user', 'post'
+  resource: keyof DataContextType; // e.g., 'user', 'post'
   value?: Option[];
   onChange?: (options: Option[]) => void;
   placeholder?: string;
@@ -14,6 +15,15 @@ interface RessourceComboboxProps {
   valueKey?: string; // which key to use as value, default 'id'
   disabled?: boolean;
   maxSelected?: number;
+}
+
+function findFirstStringProperty(item: Record<string, any>, excludeKeys: string[] = ['id']): string {
+  for (const key in item) {
+    if (typeof item[key] === 'string' && !excludeKeys.includes(key.toLowerCase())) {
+      return key;
+    }
+  }
+  return '';
 }
 
 const RessourceCombobox: React.FC<RessourceComboboxProps> = ({
@@ -34,8 +44,8 @@ const RessourceCombobox: React.FC<RessourceComboboxProps> = ({
     if (isLoading || !Array.isArray(data)) return [];
     return data.map((item: any) => ({
       id: String(item[idKey] ?? item[valueKey] ?? ''),
-      value: String(item[valueKey] ?? ''),
-      label: String(item[labelKey] ?? item[valueKey] ?? ''),
+      value: String(item[valueKey] ?? item[findFirstStringProperty(item, [idKey])]),
+      label: String(item[labelKey] ?? item[valueKey] ?? item[findFirstStringProperty(item, [idKey])]),
     }));
   }, [isLoading, data, labelKey, valueKey, idKey]);
 

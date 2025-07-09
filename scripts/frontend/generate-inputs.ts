@@ -60,8 +60,21 @@ function ReactHookFromControllerWrapper(
 export function renderInputField(field: FormField) {
   return `<Input {...field}  placeholder={field.name} />`;
 }
+
+/**
+ * Extracts the base type name from a type string and returns it in lower case.
+ * Examples:
+ *   "Post[]" => "post"
+ *   "User" => "user"
+ *   "Comment[]" => "comment"
+ */
+export function extractBaseType(type: string): string {
+  // Remove array brackets if present
+  const baseType = type.replace(/\[\]$/, "");
+  return baseType.toLowerCase();
+}
 export function renderRelationCombobox(field: FormField) {
-  return `<RessourceCombobox {...field} resource="${field.name}" idKey="id" labelKey="${field.label}" valueKey="${field.label}" />`;
+  return `<RessourceCombobox {...field} resource="${extractBaseType(field.type)}" idKey="id" labelKey="label" valueKey="label" />`;
 }
 
 export function renderTextareaField(field: FormField) {
@@ -286,6 +299,7 @@ export default function generate(schema: FormSchema) {
             );
           default:
             imports.add(importRelationCombobox());
+            console.log(field);
             return ReactHookFromControllerWrapper(
               field.name,
               rules,
