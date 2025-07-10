@@ -47,6 +47,9 @@ export async function generateBackend(
   execSync("bun add @brakebein/prisma-generator-nestjs-dto prisma -d", {
     stdio: "pipe",
   });
+  execSync("bun add zod-prisma-types -d", {
+    stdio: "pipe",
+  });
   spinner.succeed("Prisma installé");
 
   // 5. Installe PrismaService et module global
@@ -118,6 +121,19 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
     prettier                        = "true"
     wrapRelationsAsType             = "false"
     showDefaultValues               = "false"
+  }
+
+  generator zod {
+    provider       = "zod-prisma-types"
+    output         = "../../shared/zod"
+    useMultipleFiles = true
+    createInputTypes                 = false 
+    createModelTypes                 = true 
+    addInputTypeValidation           = false
+    addIncludeType                   = false
+    addSelectType                    = false
+    validateWhereUniqueInput         = false
+    createRelationValuesTypes       = true
   }
   `;
 
