@@ -14,7 +14,8 @@ export function generatePageCode(
     .map((field) => field.name)
     .filter(Boolean);
   const connectRelation = relationsName.map(
-    (r) => `${r}:  { connect: [{ id: parseInt(${r}) }] },`
+    (r) =>
+      `${r}: { connect: ${r} ? ${r}.map((${r.charAt(0)}) => ({ id: +${r.charAt(0)}.id })) : [] },`
   );
 
   const relations =
@@ -42,7 +43,7 @@ export function generatePageCode(
     const { mutateAsync: update } = useUpdate<Update${entityCapitalized}Dto>();
     
     const handleOnSubmit = useCallback(
-        async (data: ${entityCapitalized}FormDto) => {
+        async (data: ${entityCapitalized}) => {
           const { ${relations} ...rest } = data;
           
           const formattedData = {

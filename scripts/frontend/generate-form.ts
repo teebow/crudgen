@@ -28,8 +28,10 @@ export function generateEntityForm(
         field.options.length > 0
       ) {
         return `${field.name}: "${field.options[0].value}",`;
-      } else {
+      } else if (field.type === "text") {
         return `${field.name}: "",`;
+      } else {
+        return `${field.name}: [],`;
       }
     })
     .filter(Boolean)
@@ -40,6 +42,7 @@ export function generateEntityForm(
   ${additionnalImports.join("\n")}  
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
 import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
+import type { ${entityCapitalized} } from '@dto/${entityLower}/dto/${entityLower}.entity';
 
 type ${entityCapitalized}FormProps = {
     onCancel?: () => void;
@@ -54,7 +57,7 @@ export default function ${entityCapitalized}Form({
     onSubmit,
     showCancel,
 }: ${entityCapitalized}FormProps) {
-    const form = useForm<${entityCapitalized}FormDto>({
+    const form = useForm<${entityCapitalized}>({
         defaultValues: ${entityLower} ?? {
         ${defaultValues}
         },
