@@ -41,12 +41,11 @@ export function generateEntityForm(
   const code = `
   ${additionnalImports.join("\n")}  
 import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
-import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
-import type { ${entityCapitalized} } from '@dto/${entityLower}/dto/${entityLower}.entity';
+import type { ${entityCapitalized} } from '@dto/${entityLower}/entities/${entityLower}.entity';
 
 type ${entityCapitalized}FormProps = {
     onCancel?: () => void;
-    onSubmit: (${entityLower}: ${entityCapitalized}FormDto) => void;
+    onSubmit: (${entityLower}: ${entityCapitalized}) => void;
     showCancel?: boolean;
     ${entityLower}: ${entityCapitalized}Dto | null;
 };

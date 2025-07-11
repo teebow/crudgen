@@ -1,5 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { clientApi } from "./api-client";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { clientApi } from './api-client';
+import type { QueryOptions } from '@dto/common/query.dto';
 
 export const useApi = (entity: string) => {
   const queryClient = useQueryClient();
@@ -11,17 +12,16 @@ export const useApi = (entity: string) => {
         queryFn: () => clientApi.get<T>(`/${entity}/${id}`),
       });
     },
-    useList: <T>() => {
+    useList: <T>(query?: QueryOptions) => {
       return useQuery({
-        queryKey: [entity],
-        queryFn: () => clientApi.get<T[]>(`/${entity}`),
+        queryKey: [entity, query],
+        queryFn: () => clientApi.get<T[]>(`/${entity}`, query),
       });
     },
 
     useCreate: <T>() => {
       return useMutation({
-        mutationFn: (newData: Partial<T>) =>
-          clientApi.post<T>(`/${entity}`, newData),
+        mutationFn: (newData: Partial<T>) => clientApi.post<T>(`/${entity}`, newData),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: [entity] }),
       });
     },

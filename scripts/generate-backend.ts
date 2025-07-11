@@ -2,7 +2,6 @@ import fs from "fs-extra";
 import path from "node:path";
 import { ChildProcess, execSync } from "node:child_process";
 import { PrismaModel } from "./prisma-parser";
-import { pascalCase } from "change-case";
 import ora from "ora";
 import { copyConfigTemplate, copyFiles } from "./utils/copy-files";
 import {
@@ -11,11 +10,13 @@ import {
 } from "./utils/update-file-content";
 import { generatePrismaService } from "./backend/generate-prisma-service";
 import { checkModelsHaveTimestampsColumns } from "./backend/validate-prisma-schema";
+import { generateController } from "./backend/generate-controller";
 
 export async function generateBackend(
   schemaPath: string,
   models: PrismaModel[],
-  outputDir: string
+  outputDir: string,
+  sharedDir: string,
 ) {
   const templateDir = path.join(__dirname, "..", "templates", "backend");
   fs.mkdirsSync(outputDir);
@@ -69,12 +70,19 @@ export async function generateBackend(
   await copyFiles(path.join(templateDir, "app"), path.join(outputDir, "src"));
   spinner.succeed("Fichiers de configuration copiés");
 
+
+   // 7. Copie le main.tsx
+  spinner.start("Copie des common dto from shared folder");
+  const sharedTemplateDir = path.join(__dirname, "..", "templates", "shared");
+  await copyFiles(path.join(sharedTemplateDir, "dto","common"), path.join(sharedDir));
+  spinner.succeed("Common DTOs copiés");
+
   //TODO voir avec docker si stop car ça ne devrait pas marcher, il faudrait lancer d'abord le conteneur
   spinner.start("Migration prisma");
-  execSync("bunx prisma migrate dev --name init --skip-seed", {
-    stdio: "inherit",
-  });
-  spinner.succeed();
+  // execSync("bunx prisma migrate dev --name init --skip-seed", {
+  //   stdio: "inherit",
+  // });
+  spinner.succeed("Migration prisma effectuée");
   // 8. Formate tous les fichiers
   spinner.start("Prettier");
   execSync("bunx prettier --write .");
@@ -167,40 +175,15 @@ async function generateEntityModule(model: PrismaModel) {
   });
 
   await fs.ensureDir(entityModulePath);
-
-  const serviceContent = `import { Injectable } from '@nestjs/common';
-  import { PrismaService } from '../prisma/prisma.service';
-  import { Prisma } from '@prisma/client';
   
-  @Injectable()
-  export class ${entityName}Service {
-    constructor(private prisma: PrismaService) {}
-  
-    findAll() {
-      return this.prisma.${nameLower}.findMany();
-    }
-  
-    findOne(id: number) {
-      return this.prisma.${nameLower}.findUnique({ where: { id } });
-    }
-  
-    create(data: Prisma.${entityName}CreateInput) {
-      return this.prisma.${nameLower}.create({ data });
-    }
-  
-    update(id: number, data: Prisma.${entityName}UpdateInput) {
-      return this.prisma.${nameLower}.update({ where: { id }, data });
-    }
-  
-    remove(id: number) {
-      return this.prisma.${nameLower}.delete({ where: { id } });
-    }
-  }
-  `;
-
   await fs.writeFile(
     path.join(entityModulePath, `${nameLower}.service.ts`),
-    serviceContent
+    generateService(model)
+  );
+
+  await fs.writeFile(
+    path.join(entityModulePath, `${nameLower}.controller.ts`),
+    generateController(model)
   );
 }
 
