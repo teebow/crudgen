@@ -5,14 +5,14 @@
 TODO [ ] checker pour le connect et les relations dans un formulaire
 TODO [ ] Faire des vrais tests :)
 [x] utiliser lucide Icon -> remplacer par @iconify/react
-TODO [ ] Faire un truc propre pour le nommage des dossiers et fichier
+[x] Faire un truc propre pour le nommage des dossiers et fichier
 [X] utiliser HeroUi
 [x] utiliser reactquery ?
 TODO [ ] Dockerize
 [x] BDD
 TODO [ ] CI/CD
 TODO [ ] Gerer les erreurs sur les formulaire (front et back (ex: existe deja))
-TODO [ ] faire une api propre
+[x] faire une api propre
 TODO [ ] Frontal avec reverse proxy pour l'api
 TODO [ ] Externaliser les labels
 [x] Check copy .env

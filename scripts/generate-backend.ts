@@ -11,12 +11,13 @@ import {
 import { generatePrismaService } from "./backend/generate-prisma-service";
 import { checkModelsHaveTimestampsColumns } from "./backend/validate-prisma-schema";
 import { generateController } from "./backend/generate-controller";
+import { generateService } from "./backend/generate-service";
 
 export async function generateBackend(
   schemaPath: string,
   models: PrismaModel[],
   outputDir: string,
-  sharedDir: string,
+  sharedDir: string
 ) {
   const templateDir = path.join(__dirname, "..", "templates", "backend");
   fs.mkdirsSync(outputDir);
@@ -73,11 +74,10 @@ export async function generateBackend(
   await copyFiles(path.join(templateDir, "app"), path.join(outputDir, "src"));
   spinner.succeed("Fichiers de configuration copiés");
 
-
-   // 7. Copie le main.tsx
+  // 7. Copie le main.tsx
   spinner.start("Copie des common dto from shared folder");
   const sharedTemplateDir = path.join(__dirname, "..", "templates", "shared");
-  await copyFiles(path.join(sharedTemplateDir, "dto","common"), path.join(sharedDir));
+  await copyFiles(path.join(sharedTemplateDir), path.join(sharedDir));
   spinner.succeed("Common DTOs copiés");
 
   //TODO voir avec docker si stop car ça ne devrait pas marcher, il faudrait lancer d'abord le conteneur
@@ -191,7 +191,7 @@ async function generateEntityModule(model: PrismaModel) {
   });
 
   await fs.ensureDir(entityModulePath);
-  
+
   await fs.writeFile(
     path.join(entityModulePath, `${nameLower}.service.ts`),
     generateService(model)
