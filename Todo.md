@@ -4,6 +4,7 @@
 [x] utiliser les dto coté front
 TODO [ ] checker pour le connect et les relations dans un formulaire
 TODO [ ] Faire des vrais tests :)
+[ ] Tester avec valeur prérempli pour les relations dans les formulaires
 [x] utiliser lucide Icon -> remplacer par @iconify/react
 [x] Faire un truc propre pour le nommage des dossiers et fichier
 [X] utiliser HeroUi

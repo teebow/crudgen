@@ -8,18 +8,19 @@ export function generatePageCode(
 ): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
-
-  const relationsName = (model.fields ||= [])
-    .filter((field) => field.isList)
-    .map((field) => field.name)
-    .filter(Boolean);
-  const connectRelation = relationsName.map(
-    (r) =>
-      `${r}: { connect: ${r} ? ${r}.map((${r.charAt(0)}) => ({ id: +${r.charAt(0)}.id })) : [] },`
+  const relationsName = (model.fields || [])
+    .filter((field) => field.isRelation)
+    .map((field) => ({ name: field.name, isList: field.isList }));
+  const connectRelation = relationsName.map((r) =>
+    r.isList
+      ? `${r.name}: { connect: ${r.name} ? ${r.name}.map((${r.name.charAt(0)}) => ({ id: +${r.name.charAt(0)}.id })) : [] },`
+      : `${r.name}: { connect: ${r.name} ? { id: +${r.name}.id } : undefined },`
   );
 
   const relations =
-    relationsName.length > 0 ? relationsName.join(",") + "," : "";
+    relationsName.length > 0
+      ? relationsName.map((r) => r.name).join(",") + ","
+      : "";
 
   // This function generates a React component for a page based on the entity name.
   const code = `import { useCallback, useState } from "react";

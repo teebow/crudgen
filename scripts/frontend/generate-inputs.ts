@@ -7,6 +7,7 @@ export interface FormField {
   name: string;
   label: string;
   type: string;
+  isRelation?: boolean;
   required?: boolean;
   placeholder?: string;
   defaultValue?: any;
@@ -74,7 +75,12 @@ export function extractBaseType(type: string): string {
   return baseType.toLowerCase();
 }
 export function renderRelationCombobox(field: FormField) {
-  return `<RessourceCombobox {...field} resource="${extractBaseType(field.type)}" idKey="id" labelKey="label" valueKey="label" />`;
+  const oneRelation = field.type.endsWith("[]")
+    ? ""
+    : ` value={field.value ? [field.value] : []}
+                  onChange={(val) => field.onChange(val && val.length > 0 ? val[0] : null)} maxSelected={1}`;
+
+  return `<RessourceCombobox {...field} ${oneRelation} resource="${extractBaseType(field.type)}" idKey="id" labelKey="label" valueKey="label"  />`;
 }
 
 export function renderTextareaField(field: FormField) {
@@ -299,7 +305,6 @@ export default function generate(schema: FormSchema) {
             );
           default:
             imports.add(importRelationCombobox());
-            console.log(field);
             return ReactHookFromControllerWrapper(
               field.name,
               rules,

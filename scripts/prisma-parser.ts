@@ -8,6 +8,7 @@ export type PrismaField = {
   type: string;
   isOptional: boolean;
   isList: boolean;
+  isRelation: boolean;
 };
 
 export type PrismaModel = {
@@ -34,9 +35,9 @@ export async function extractModels(
       type: field.type,
       isOptional: !field.isRequired,
       isList: field.isList,
+      isRelation: field.relationName != undefined,
     })),
   }));
-
   return models;
 }
 
@@ -50,6 +51,7 @@ export function prismaModelToFormSchema(model: PrismaModel): FormSchema {
         label: f.name.charAt(0).toUpperCase() + f.name.slice(1),
         type: mapPrismaTypeToFormType(f.type) + (f.isList ? "[]" : ""),
         required: !f.isOptional,
+        isRelation: f.isRelation,
       })),
     submitButtonText: "Submit",
   };
