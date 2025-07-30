@@ -8,72 +8,44 @@ export function generatePageCode(
 ): string {
   const entityCapitalized = pascalCase(entityName);
   const entityLower = entityName.toLowerCase();
-  const relationsName = (model.fields || [])
-    .filter((field) => field.isRelation)
-    .map((field) => ({ name: field.name, isList: field.isList }));
-  const connectRelation = relationsName.map((r) =>
-    r.isList
-      ? `${r.name}: { connect: ${r.name} ? ${r.name}.map((${r.name.charAt(0)}) => ({ id: +${r.name.charAt(0)}.id })) : [] },`
-      : `${r.name}: { connect: ${r.name} ? { id: +${r.name}.id } : undefined },`
-  );
-
-  const relations =
-    relationsName.length > 0
-      ? relationsName.map((r) => r.name).join(",") + ","
-      : "";
 
   // This function generates a React component for a page based on the entity name.
-  const code = `import { useCallback, useState } from "react";
-  import ${entityCapitalized}Form from "./${entityCapitalized}Form";
-  import type { ${entityCapitalized} } from '@dto/${entityLower}/entities/${entityLower}.entity';
-  import type { Create${entityCapitalized}Dto } from '@dto/${entityLower}/dto/create-${entityLower}.dto';
-  import type { Update${entityCapitalized}Dto } from '@dto/${entityLower}/dto/update-${entityLower}.dto';
-  import { useApi } from "@/core/api/use-api";
-  import type { ${entityCapitalized}Dto } from '@dto/${entityLower}/dto/${entityLower}.dto';
+  const code = `import { useCallback } from 'react';
+  import ${entityCapitalized}Form from './${entityCapitalized}Form';
+  import type { Create${entityCapitalized}Dto, Update${entityCapitalized}Dto, ${entityCapitalized}Dto } from '@zod/${entityLower}.schema';
+  import { useApi } from '@/core/api/use-api';
   import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
-
-
+  
   type ${entityCapitalized}PageProps = {
     ${entityLower}: ${entityCapitalized}Dto | null;
     showTitle?: boolean;
   };
-
-  export default function ${entityCapitalized}Page({${entityLower}, showTitle}: ${entityCapitalized}PageProps) {
-    const { useCreate, useUpdate } = useApi("${entityLower}");
+  
+  export default function ${entityCapitalized}Page({ ${entityLower}, showTitle }: ${entityCapitalized}PageProps) {
+    const { useCreate, useUpdate } = useApi('${entityLower}');
     const { mutateAsync: create } = useCreate<Create${entityCapitalized}Dto>();
     const { mutateAsync: update } = useUpdate<Update${entityCapitalized}Dto>();
-    
+  
     const handleOnSubmit = useCallback(
-        async (data: ${entityCapitalized}) => {
-          const { ${relations} ...rest } = data;
-          
-          const formattedData = {
-            ...rest,
-            ${connectRelation}
-          };
-    
-          if (${entityLower} && ${entityLower}.id) {
-            await update({ ...formattedData, id: ${entityLower}.id });
-          } else {
-            await create(formattedData);
-          }
-        },
-        [${entityLower}, create, update]
-      );
-
-
-
+      async (data: ${entityCapitalized}FormDto) => {
+        if (${entityLower} && ${entityLower}.id) {
+          await update({ ...data, id: ${entityLower}.id });
+        } else {
+          await create(data);
+        }
+      },
+      [${entityLower}, create, update]
+    );
+  
     return (
-      <div className="w-full mx-auto p-4">
-      { showTitle ? <h1 className="mb-4 text-2xl font-bold">{${entityLower} ? "Update ${entityCapitalized}" : "Create ${entityCapitalized}"}</h1> : null }
-    
-        <${entityCapitalized}Form
-          ${entityLower}={${entityLower}}
-          onSubmit={handleOnSubmit}
-        />
+      <div className="mx-auto w-full p-4">
+        {showTitle ? <h1 className="mb-4 text-2xl font-bold">{${entityLower} ? 'Update ${entityCapitalized}' : 'Create ${entityCapitalized}'}</h1> : null}
+  
+        <${entityCapitalized}Form ${entityLower}={${entityLower}} onSubmit={handleOnSubmit} />
       </div>
     );
   }
+  
     `;
   return code;
 }

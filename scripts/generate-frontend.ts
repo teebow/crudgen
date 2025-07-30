@@ -20,6 +20,7 @@ import {
   shadcnMainAppContent,
 } from "./lib/shadcn";
 import { generateColumns } from "./frontend/generate-column";
+import { generateZod } from "./frontend/generate-zod";
 
 //todo tester
 export async function generateFrontend(

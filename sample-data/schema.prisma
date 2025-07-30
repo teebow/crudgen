@@ -13,18 +13,18 @@ datasource db {
 // deletedAt DateTime?
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-   /// @DtoConnectHidden
-  email     String?  @unique
+  id    Int     @id @default(autoincrement())
+  name  String
+  /// @DtoConnectHidden
+  email String? @unique
 
   /// @DtoCreateOptional
   /// @DtoRelationCanConnectOnCreate
   /// @DtoRelationCanCreateOnUpdate
   /// @DtoRelationCanConnectOnUpdate
   /// @NestJSDTO.relation("entityDto")
-  posts     Post[]
-  
+  posts Post[]
+
   /// @DtoReadOnly
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -32,17 +32,22 @@ model User {
 }
 
 model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  
+  id      Int     @id @default(autoincrement())
+  title   String
+  content String?
+
+  /// @DtoCreateOptional
   /// @DtoRelationCanConnectOnCreate
-  author    User?   @relation(fields: [authorId], references: [id])
+  /// @DtoRelationCanCreateOnUpdate
+  /// @DtoRelationCanConnectOnUpdate
+  author User? @relation(fields: [authorId], references: [id])
+
+  /// @DtoEntityHidden
+  /// @zod.custom.omit([input])
   authorId  Int?
-  published Boolean? @default(false)
+  published Boolean?  @default(false)
   /// @DtoReadOnly
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
-

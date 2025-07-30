@@ -1,6 +1,6 @@
 import { FormField } from "../frontend/generate-inputs";
 
-const columnsToIgnore = ["createdAt", "deletedAt", "updatedAt"];
+export const columnsToIgnore = ["createdAt", "deletedAt", "updatedAt"];
 
 export function ignoreDefaultDateFields(fields: FormField[]): FormField[] {
   return fields.filter(

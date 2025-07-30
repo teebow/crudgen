@@ -31,35 +31,51 @@ import { useState } from 'react';
 import { columns } from './columns';
 import { DataTable } from '@/components/table/data-table';
 import { useData } from '@/core/context/use-data';
-import type { ${entityPascal} } from '@dto/${entityLower}/entities/${entityLower}.entity';
 import ${entityPascal}Page from './${entityPascal}Page';
 import { FormSheet } from '@/components/form-sheet';
 
+import type { Paginated${entityPascal}sDto, ${entityPascal}Dto } from '@zod/${entityLower}.schema';
+import type { QueryOptionsDto } from '@zod/common/query.schema';
+import { useTableActions } from '@/components/table/hooks/use-table-actions';
+
 export default function ${entityPascal}List() {
-  const { ${entityLower} } = useData();
-  const { data: ${entityLower}List, isLoading } = ${entityLower}.useList();
-  const [selected${entityPascal}, setSelected${entityPascal}] = useState<${entityPascal} | null>(null);
+  const [queryOptions, setQueryOptions] = useState<QueryOptionsDto>({ page: 1, limit: 10 });
+  const [selected${entityPascal}, setSelected${entityPascal}] = useState<${entityPascal}Dto | null>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
-  
-  const handleAddNew = () => {
-    setSelected${entityPascal}(null);
-    setOpenDrawer(true);
-  };
 
-  const handleEdit = (row: { original: ${entityPascal} }) => {
-    setSelected${entityPascal}(row.original);
-    setOpenDrawer(true);
-  };
+  const {
+    handleAddNew,
+    handleEdit,
+    handleDrawerClose,
+    handleSortingChange,
+    handleFilterChange,
+    handlePageChange,
+    handleLimitChange,
+  } = useTableActions<${entityPascal}Dto>({
+    setQueryOptions,
+    setSelectedItem: setSelected${entityPascal},
+    setOpenDrawer,
+  });
 
-  const handleDrawerClose = () => setOpenDrawer(false);
+  const { ${entityLower} } = useData();
+  const { data: ${entityLower}List, isLoading } = ${entityLower}.useList<Paginated${entityPascal}sDto>(queryOptions);
+  const { data: ${entityLower}ListData = [], ...paginationMetaData } = ${entityLower}List ?? {};
 
   return (
     <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={isLoading ? Array(10).fill({}) : ${entityLower}List} isLoading={isLoading}
-      entityName="${entityPascal}"
-      onAddNew={handleAddNew}
-      onRowDoubleClick={handleEdit}
-       />
+      <DataTable
+        columns={columns}
+        data={isLoading ? Array(10).fill({}) : ${entityLower}ListData}
+        isLoading={isLoading}
+        entityName="${entityPascal}"
+        onAddNew={handleAddNew}
+        onRowDoubleClick={handleEdit}
+        paginationMetaData={paginationMetaData as Omit<Paginated${entityPascal}sDto, 'data'>}
+        onPageChange={handlePageChange}
+        onLimitChange={handleLimitChange}
+        onSortChange={handleSortingChange}
+        onFilterChange={handleFilterChange}
+      />
       <FormSheet
         open={openDrawer}
         onOpenChange={handleDrawerClose}

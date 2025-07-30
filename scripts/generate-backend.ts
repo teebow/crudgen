@@ -13,6 +13,8 @@ import { checkModelsHaveTimestampsColumns } from "./backend/validate-prisma-sche
 import { generateController } from "./backend/generate-controller";
 import { generateService } from "./backend/generate-service";
 
+import { generateZodSchema } from "./zod-gen";
+
 export async function generateBackend(
   schemaPath: string,
   models: PrismaModel[],
@@ -22,6 +24,7 @@ export async function generateBackend(
   const templateDir = path.join(__dirname, "..", "templates", "backend");
   fs.mkdirsSync(outputDir);
   process.chdir(outputDir);
+
   // 1. Crée le projet NestJS si non existant
   const spinner = ora("Création du projet Nest...").start();
   if (!fs.existsSync(path.join(outputDir, "package.json"))) {
@@ -46,9 +49,6 @@ export async function generateBackend(
   spinner.start("installation de Prisma");
   execSync("bun add @prisma/client", { stdio: "pipe" });
   execSync("bun add @brakebein/prisma-generator-nestjs-dto prisma -d", {
-    stdio: "pipe",
-  });
-  execSync("bun add zod-prisma-types -d", {
     stdio: "pipe",
   });
   spinner.succeed("Prisma installé");
@@ -90,6 +90,18 @@ export async function generateBackend(
   spinner.start("Prettier");
   execSync("bunx prettier --write .");
   spinner.succeed();
+
+  spinner.start("Génération des schema et Dto Zod");
+  await generateZodSchema(schemaPath, path.join(sharedDir, "zod"));
+  spinner.succeed();
+  process.chdir(sharedDir);
+  spinner.start("Installation des dépendances pour Shared");
+  execSync("bun add zod -d", {
+    stdio: "inherit",
+  });
+  spinner.start("Prettier");
+  execSync("bunx prettier --write .");
+  spinner.succeed();
 }
 
 async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
@@ -97,45 +109,32 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
 
   const newSchemaPath = path.join("prisma", "schema.prisma");
   //const schemaContent = generatePrismaSchema(models);
-  const nestjsDtoGenerator = `
-  generator nestjsDto {
-    provider                        = "prisma-generator-nestjs-dto"
-    output                          = "../../shared/dto"
-    prismaClientImportPath          = ""
-    outputToNestJsResourceStructure = "true"
-    flatResourceStructure           = "false"
-    exportRelationModifierClasses   = "false"
-    reExport                        = "false"
-    generateFileTypes               = "all"
-    createDtoPrefix                 = "Create"
-    updateDtoPrefix                 = "Update"
-    dtoSuffix                       = "Dto"
-    entityPrefix                    = ""
-    entitySuffix                    = ""
-    classValidation                 = "false"
-    fileNamingStyle                 = "camel"
-    noDependencies                  = "true"
-    outputType                      = "interface"
-    definiteAssignmentAssertion     = "false"
-    requiredResponseApiProperty     = "true"
-    prettier                        = "true"
-    wrapRelationsAsType             = "false"
-    showDefaultValues               = "false"
-  }
-
-  generator zod {
-    provider       = "zod-prisma-types"
-    output         = "../../shared/zod"
-    useMultipleFiles = true
-    createInputTypes                 = false 
-    createModelTypes                 = true 
-    addInputTypeValidation           = false
-    addIncludeType                   = false
-    addSelectType                    = false
-    validateWhereUniqueInput         = false
-    createRelationValuesTypes       = true
-  }
-  `;
+  // const nestjsDtoGenerator = `
+  // generator nestjsDto {
+  //   provider                        = "prisma-generator-nestjs-dto"
+  //   output                          = "../../shared/dto"
+  //   prismaClientImportPath          = ""
+  //   outputToNestJsResourceStructure = "true"
+  //   flatResourceStructure           = "false"
+  //   exportRelationModifierClasses   = "false"
+  //   reExport                        = "false"
+  //   generateFileTypes               = "all"
+  //   createDtoPrefix                 = "Create"
+  //   updateDtoPrefix                 = "Update"
+  //   dtoSuffix                       = "Dto"
+  //   entityPrefix                    = ""
+  //   entitySuffix                    = ""
+  //   classValidation                 = "false"
+  //   fileNamingStyle                 = "camel"
+  //   noDependencies                  = "true"
+  //   outputType                      = "interface"
+  //   definiteAssignmentAssertion     = "false"
+  //   requiredResponseApiProperty     = "true"
+  //   prettier                        = "true"
+  //   wrapRelationsAsType             = "false"
+  //   showDefaultValues               = "false"
+  // }
+  // `;
 
   await fs.copyFile(schemaPath, newSchemaPath);
   let schemaContent = await fs.readFile(newSchemaPath, "utf-8");
@@ -145,13 +144,13 @@ async function updatePrismaSchemaAndGenerateDto(schemaPath: string) {
     console.error("Error validating Prisma schema:", error);
     throw error;
   }
-  schemaContent = schemaContent.replace(
-    /generator client \{\s*provider\s*=\s*"prisma-client-js"\s*\}/,
-    `generator client {
-    provider = "prisma-client-js"
-  }
-   ${nestjsDtoGenerator}`
-  );
+  // schemaContent = schemaContent.replace(
+  //   /generator client \{\s*provider\s*=\s*"prisma-client-js"\s*\}/,
+  //   `generator client {
+  //   provider = "prisma-client-js"
+  // }
+  //  ${nestjsDtoGenerator}`
+  // );
   await fs.writeFile(newSchemaPath, schemaContent, "utf-8");
 
   execSync("bunx prisma generate", { stdio: "pipe" });
@@ -263,8 +262,8 @@ function updateAppModuleFilesToAddConfigModule(outputDir: string) {
 
   // Check if ConfigModule.forRoot() is already in the imports array
   const importsRegex = /imports\s*:\s*\[([^\]]*)\]/;
-  const match = appModuleContent.match(importsRegex);
-  if (match && !match[1].includes("ConfigModule.forRoot")) {
+  const matchImports = appModuleContent.match(importsRegex);
+  if (matchImports && !matchImports[1].includes("ConfigModule.forRoot")) {
     appModuleContent = appModuleContent.replace(
       "imports: [",
       `imports: [

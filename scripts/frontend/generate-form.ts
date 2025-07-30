@@ -29,23 +29,23 @@ export function generateEntityForm(
       ) {
         return `${field.name}: "${field.options[0].value}",`;
       } else if (field.type === "text") {
-        return `${field.name}: "",`;
+        return `${field.name}: null,`;
       } else {
-        return `${field.name}: [],`;
+        return `${field.name}: undefined,`;
       }
     })
     .filter(Boolean)
     .join("\n");
-
+  //remove default ${defaultValues}
   // This function generates a React component for a form based on the entity name.
   const code = `
   ${additionnalImports.join("\n")}  
-import type { ${entityCapitalized}Dto } from "@dto/${entityLower}/dto/${entityLower}.dto";
-import type { ${entityCapitalized} } from '@dto/${entityLower}/entities/${entityLower}.entity';
+import type { Create${entityCapitalized}Dto, Update ${entityCapitalized}Dto,  ${entityCapitalized}Dto } from '@zod/${entityLower}.schema';
+import type { ${entityCapitalized}FormDto } from './${entityLower}-form.type';
 
 type ${entityCapitalized}FormProps = {
     onCancel?: () => void;
-    onSubmit: (${entityLower}: ${entityCapitalized}) => void;
+    onSubmit: (${entityLower}: ${entityCapitalized}FormDto ) => void;
     showCancel?: boolean;
     ${entityLower}: ${entityCapitalized}Dto | null;
 };
@@ -56,10 +56,8 @@ export default function ${entityCapitalized}Form({
     onSubmit,
     showCancel,
 }: ${entityCapitalized}FormProps) {
-    const form = useForm<${entityCapitalized}>({
-        defaultValues: ${entityLower} ?? {
-        ${defaultValues}
-        },
+    const form = useForm<Update${entityCapitalized}Dto | Create${entityCapitalized}Dto>({
+        defaultValues: ${entityLower} ?? {},
     });
 
     

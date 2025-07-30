@@ -6,8 +6,8 @@ export function generateFormType(entityName: string): string {
 
   // This function generates a React component for a form based on the entity name.
   const code = `
-import type { Create${entityCapitalized}Dto } from "@dto/${entityLower}/dto/create-${entityLower}.dto";
-import type { Update${entityCapitalized}Dto } from "@dto/${entityLower}/dto/update-${entityLower}.dto";
+import type { Create${entityCapitalized}Dto } from "@zod/${entityLower}.schema";
+import type { Update${entityCapitalized}Dto } from "@zod/${entityLower}.schema";
 
 export type ${entityCapitalized}FormDto = Create${entityCapitalized}Dto | Update${entityCapitalized}Dto;
 `;

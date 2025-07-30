@@ -33,8 +33,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { MoreHorizontal, Trash } from 'lucide-react';
-import type { ${pascalCase(entityName)} } from '@dto/${entityLower}/entities/${entityLower}.entity'; 
-export const columns: ColumnDef<${pascalCase(entityName)}>[] = [
+import type { ${pascalCase(entityName)}Dto } from '@zod/${entityLower}/${entityLower}.schema'; 
+export const columns: ColumnDef<${pascalCase(entityName)}Dto>[] = [
   {
     id: 'select',
     header: ({ table }) => (

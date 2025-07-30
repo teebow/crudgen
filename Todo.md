@@ -10,6 +10,7 @@ TODO [ ] Faire des vrais tests :)
 [X] utiliser HeroUi
 [x] utiliser reactquery ?
 TODO [ ] Dockerize
+[x] main.ts wrong directory
 [x] BDD
 TODO [ ] CI/CD
 TODO [ ] Gerer les erreurs sur les formulaire (front et back (ex: existe deja))
@@ -25,16 +26,18 @@ TODO [x] manage date colmun (deletedAt...) display
 [ ] default rbac ?
 [ ] voir pour le state management si besoin
 [x] voir en Page List etc.. comment faire ça propre
-[ ] gestion des relation back et front
+[x] gestion des relation back et front
 [ ] https://github.com/vegardit/prisma-generator-nestjs-dto?tab=readme-ov-file#usage
 [ ] voir exemple sur le site prisma
 [ ] migration init prisma à faire ?
-[ ] Copier main.tsx dans backend
+[x] Copier main.tsx dans backend
 [ ] HTTP2
 [x] Voir pour utiliser react router a la place de tanstack router
 [ ] Utiliser zod pour cleaner le formulaire des données pourries
 [x] Notification pour requete
 [ ] Soft delete using prisma extension
+[ ] enleve optional and nullabe sur le DTO zod (hors création et update)
+[ ] Validation par zod du retour de l'api
 https://chatgpt.com/share/6850471f-d270-8003-b79e-f7c556803544
 
 Voir autres best practices

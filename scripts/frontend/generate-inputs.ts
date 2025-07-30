@@ -78,9 +78,10 @@ export function renderRelationCombobox(field: FormField) {
   const oneRelation = field.type.endsWith("[]")
     ? ""
     : ` value={field.value ? [field.value] : []}
-                  onChange={(val) => field.onChange(val && val.length > 0 ? val[0] : null)} maxSelected={1}`;
+                   maxSelected={1}`;
 
-  return `<RessourceCombobox {...field} ${oneRelation} resource="${extractBaseType(field.type)}" idKey="id" labelKey="label" valueKey="label"  />`;
+  return `<RessourceCombobox {...field} ${oneRelation} resource="${extractBaseType(field.type)}" idKey="id" labelKey="label" valueKey="label"
+  onChange={(options) => field.onChange(options ? options.map((o) => +o.id) : undefined)}  />`;
 }
 
 export function renderTextareaField(field: FormField) {

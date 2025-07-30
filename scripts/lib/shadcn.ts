@@ -9,8 +9,13 @@ export function installShadcnDeps() {
   console.log("Installing shadcn/ui dependencies...");
 
   execSync(`bun add tailwindcss @tailwindcss/vite`, { stdio: "inherit" });
-  execSync(`bun pm trust @tailwindcss/oxide`, { stdio: "inherit" });
-  execSync(`bun pm trust esbuild`, { stdio: "inherit" });
+  try {
+    execSync(`bun pm trust @tailwindcss/oxide`, { stdio: "inherit" });
+    execSync(`bun pm trust esbuild`, { stdio: "inherit" });
+  } catch (e) {
+    console.error(e);
+  }
+
   console.log(
     "Installing Vite, React, Tailwind CSS and related dev dependencies..."
   );
@@ -18,9 +23,7 @@ export function installShadcnDeps() {
   execSync(`bunx --bun shadcn@latest init`, { stdio: "inherit" });
 
   // Install shadcn/ui components
-  execSync(
-    `bunx --bun shadcn@latest add -a --yes --silent`
-  );
+  execSync(`bunx --bun shadcn@latest add -a --yes --silent`);
 
   execSync(`bun add @tanstack/react-table`);
 

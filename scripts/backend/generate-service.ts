@@ -1,14 +1,14 @@
 import { PrismaModel } from "../prisma-parser";
 
-export function generateService(model:PrismaModel){
-    const entityName = model.name;
-    const nameLower = entityName.toLowerCase();
-    const code = 
- `import { Injectable } from '@nestjs/common';
+export function generateService(model: PrismaModel) {
+  const entityName = model.name;
+  const nameLower = entityName.toLowerCase();
+  const code = `import { Injectable } from '@nestjs/common';
   import { PrismaService } from '../prisma/prisma.service';
   import { Prisma } from '@prisma/client';
   import { buildPrismaPagination, buildPrismaWhere } from 'src/utils/query-utils';
-  import { QueryOptions } from '@dto/common/query.dto';
+  import { paginatedFindAll } from '@common/prisma/paginated-find-all';
+  import { QueryOptionsDto } from '@zod/common/query.schema';
   
   @Injectable()
   export class ${entityName}Service {
@@ -16,12 +16,7 @@ export function generateService(model:PrismaModel){
 
 
     findAll(dto: QueryOptions) {
-      const where = buildPrismaWhere<'${entityName}'>(dto);
-      const { skip, take, orderBy } = buildPrismaPagination(dto); 
-      const include = dto.include
-      ? (JSON.parse(dto.include) as Prisma.${entityName}Include)
-      : undefined;
-      return this.prisma.${nameLower}.findMany({ where, skip, take, orderBy, include });
+      return paginatedFindAll<'${entityName}'>(dto, this.prisma.${nameLower});
     }
   
     findOne(id: number) {
@@ -41,5 +36,5 @@ export function generateService(model:PrismaModel){
     }
   }
     `;
-    return code;
+  return code;
 }
